@@ -203,7 +203,16 @@ namespace pystring
     /// any whitespace string is a separator.
     ///
     void split( const std::string & str, std::vector< std::string > & result, const std::string & sep = "", int maxsplit = -1);
-    
+	
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief Fills the "result" list with the words in the string, using sep as the delimiter string.
+    /// Does a number of splits starting at the end of the string, the result still has the
+    /// split strings in their original order.
+    /// If maxsplit is > -1, at most maxsplit splits are done. If sep is "",
+    /// any whitespace string is a separator.
+    ///
+    void rsplit( const std::string & str, std::vector< std::string > & result, const std::string & sep = "", int maxsplit = -1);
+	
     //////////////////////////////////////////////////////////////////////////////////////////////
     /// @brief Return a list of the lines in the string, breaking at line boundaries. Line breaks
     /// are not included in the resulting list unless keepends is given and true. 
