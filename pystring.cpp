@@ -167,16 +167,13 @@ namespace pystring
     ///
     void rsplit( const std::string & str, std::vector< std::string > & result, const std::string & sep, int maxsplit )
     {
-		if ( maxsplit == 0 )
-		{
-			split( str, result, sep, 0 );
-			return;
-		}
+        if ( maxsplit < 0 )
+        {
+            split( str, result, sep, 0 );
+            return;
+        }
 
         result.clear();
-
-        if ( maxsplit < 0 ) maxsplit = MAX_32BIT_INT;//result.max_size();
-
 
         if ( sep.size() == 0 )
         {
