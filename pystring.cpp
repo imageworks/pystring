@@ -335,8 +335,8 @@ namespace pystring
     {
         std::vector< std::string >::size_type seqlen = seq.size(), i;
         
-        if ( seq.size() == 0 ) return "";
-        if ( seq.size() == 1 ) return seq[0];
+        if ( seqlen == 0 ) return "";
+        if ( seqlen == 1 ) return seq[0];
         
         std::string result( seq[0] );
         
