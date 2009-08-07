@@ -303,6 +303,48 @@ namespace pystring
         }
     
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    ///
+    ///
+    void partition( const std::string & str, const std::string & sep, std::vector< std::string > & result )
+    {
+        result.resize(3);
+        int index = find( str, sep );
+        if ( index < 0 )
+        {
+            result[0] = str;
+            result[1] = "";
+            result[2] = "";
+        }
+        else
+        {
+            result[0] = str.substr( 0, index );
+            result[1] = sep;
+            result[2] = str.substr( index + sep.size(), str.size() );
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    ///
+    ///
+    void rpartition( const std::string & str, const std::string & sep, std::vector< std::string > & result )
+    {
+        result.resize(3);
+        int index = rfind( str, sep );
+        if ( index < 0 )
+        {
+            result[0] = "";
+            result[1] = "";
+            result[2] = str;
+        }
+        else
+        {
+            result[0] = str.substr( 0, index );
+            result[1] = sep;
+            result[2] = str.substr( index + sep.size(), str.size() );
+        }
+    }
     
     //////////////////////////////////////////////////////////////////////////////////////////////
     ///

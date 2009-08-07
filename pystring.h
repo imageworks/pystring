@@ -166,6 +166,14 @@ namespace pystring
     std::string lstrip( const std::string & str, const std::string & chars = "" );
     
     //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief Split the string around first occurance of sep.
+    /// Three strings will always placed into result. If sep is found, the strings will
+    /// be the text before sep, sep itself, and the remaining text. If sep is
+    /// not found, the original string will be returned with two empty strings.
+    ///
+    void partition( const std::string & str, const std::string & sep, std::vector< std::string > & result );
+    
+    //////////////////////////////////////////////////////////////////////////////////////////////
     /// @brief Return a copy of the string with all occurrences of substring old replaced by new. If
     /// the optional argument count is given, only the first count occurrences are replaced.
     ///
@@ -190,6 +198,14 @@ namespace pystring
     ///
     std::string rjust( const std::string & str, int width);
     
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief Split the string around last occurance of sep.
+    /// Three strings will always placed into result. If sep is found, the strings will
+    /// be the text before sep, sep itself, and the remaining text. If sep is
+    /// not found, the original string will be returned with two empty strings.
+    ///
+    void rpartition( const std::string & str, const std::string & sep, std::vector< std::string > & result );
+
     //////////////////////////////////////////////////////////////////////////////////////////////
     /// @brief Return a copy of the string with trailing characters removed. If chars is "", whitespace
     /// characters are removed. If not "", the characters in the string will be stripped from the
