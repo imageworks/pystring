@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008, Sony Pictures Imageworks
+// Copyright (c) 2008-2010, Sony Pictures Imageworks Inc
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without
