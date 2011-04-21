@@ -4,3 +4,5 @@ Overlapping functionality (such as index and slice/substr) of std::string is inc
 
 Originally developed at Sony Pictures Imageworks.
 http://opensource.imageworks.com/
+
+Note: Despite the infrequent updates, this repo is not dead/abandoned - just stable!  We use it every day in Imageworks.
