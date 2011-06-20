@@ -30,6 +30,31 @@ PYSTRING_ADD_TEST(pystring, endswith)
     PYSTRING_CHECK_EQUAL(pystring::endswith("abcdef", "cdef", -10), true);
 }
 
+PYSTRING_ADD_TEST(pystring, find)
+{
+    PYSTRING_CHECK_EQUAL(pystring::find("", ""), 0);
+    PYSTRING_CHECK_EQUAL(pystring::find("", "a"), -1);
+    PYSTRING_CHECK_EQUAL(pystring::find("a", ""), 0);
+    PYSTRING_CHECK_EQUAL(pystring::find("a", "a"), 0);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcdef", "def"), 3);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcdef", "def", 3), 3);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcdef", "def", 4), -1);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcdef", "def", -5), 3);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcdef", "def", -1), -1);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcabcabc", "bc", -2), 7);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcabcabc", "bc", -1), -1);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcabcabc", "bc", 0), 1);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcabcabc", "bc", 1), 1);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcabcabc", "bc", 2), 4);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcabcabc", "bc", 4), 4);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcabcabc", "bc", 7), 7);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcabcabc", "bc", 4, 3), -1);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcabcabc", "bc", 4, 4), -1);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcabcabc", "bc", 4, 5), -1);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcabcabc", "bc", 4, -1), 4);
+    PYSTRING_CHECK_EQUAL(pystring::find("abcabcabc", "bc", 4, 6), 4);
+}
+
 PYSTRING_ADD_TEST(pystring, startswith)
 {
     PYSTRING_CHECK_EQUAL(pystring::startswith("", ""), true);
