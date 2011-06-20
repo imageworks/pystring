@@ -1,0 +1,5 @@
+test
+.libs
+libpystring.la
+pystring.lo
+pystring.o
