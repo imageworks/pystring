@@ -31,11 +31,12 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <ctype.h>
-#include <string.h>
-#include <iostream>
-#include <algorithm>
 #include "pystring.h"
+
+#include <algorithm>
+#include <cctype>
+#include <cstring>
+#include <iostream>
 
 namespace pystring
 {
@@ -397,13 +398,14 @@ namespace pystring
     //////////////////////////////////////////////////////////////////////////////////////////////
     ///
     ///
-    int __adjustslicepos( std::string::size_type len, int pos )
+    int __adjustslicepos( std::string::size_type len_, int pos )
     {
-        int intlen = len, value;
+        int len = static_cast<int>(len_);
+        int value;
 
         if ( pos < 0 )
         {
-            value = intlen + pos;
+            value = len + pos;
         }
         else
         {
@@ -415,7 +417,7 @@ namespace pystring
             value = 0;
         }
 
-        else if ( value > ( int ) len )
+        else if ( value > len)
         {
             value = len;
         }
@@ -431,14 +433,14 @@ namespace pystring
     ///
     bool startswith( const std::string & str, const std::string & prefix, int start, int end )
     {
-        std::string::size_type startp, endp;
-
+        int startp, endp;
+        
         startp = __adjustslicepos( str.size(), start );
         endp = __adjustslicepos( str.size(), end );
 
         if ( start > (int) str.size() ) return false;
 
-        if ( endp - startp < prefix.size()   ) return false;
+        if ( endp - startp < (int) prefix.size()   ) return false;
         return __substrcmp( str, prefix, startp );
 
     }
@@ -448,18 +450,19 @@ namespace pystring
     ///
     bool endswith( const std::string & str, const std::string & suffix, int start, int end )
     {
-        std::string::size_type startp, endp;
+        int startp, endp;
 
         startp = __adjustslicepos( str.size(), start );
         endp = __adjustslicepos( str.size(), end );
-
+        
+        int suffixsize = (int) suffix.size();
         int upper = endp;
-        int lower = ( upper - suffix.size() ) > startp ? ( upper - suffix.size() ) : startp;
+        int lower = ( upper - suffixsize ) > startp ? ( upper - suffixsize ) : startp;
 
         if ( start > (int) str.size() ) return false;
 
 
-        if ( upper - lower < ( int ) suffix.size() )
+        if ( upper - lower < suffixsize )
         {
             return false;
         }
@@ -624,12 +627,12 @@ namespace pystring
 
         if ( len > 0)
         {
-            if (::islower(s[0])) s[0] = ::toupper( s[0] );
+            if (::islower(s[0])) s[0] = (char) ::toupper( s[0] );
         }
 
         for ( i = 1; i < len; ++i )
         {
-            if (::isupper(s[i])) s[i] = ::tolower( s[i] );
+            if (::isupper(s[i])) s[i] = (char) ::tolower( s[i] );
         }
 
         return s;
@@ -645,7 +648,7 @@ namespace pystring
 
         for ( i = 0; i < len; ++i )
         {
-            if ( ::isupper( s[i] ) ) s[i] = ::tolower( s[i] );
+            if ( ::isupper( s[i] ) ) s[i] = (char) ::tolower( s[i] );
         }
 
         return s;
@@ -661,7 +664,7 @@ namespace pystring
 
         for ( i = 0; i < len; ++i )
         {
-            if ( ::islower( s[i] ) ) s[i] = ::toupper( s[i] );
+            if ( ::islower( s[i] ) ) s[i] = (char) ::toupper( s[i] );
         }
 
         return s;
@@ -677,8 +680,8 @@ namespace pystring
 
         for ( i = 0; i < len; ++i )
         {
-            if ( ::islower( s[i] ) ) s[i] = ::toupper( s[i] );
-            else if (::isupper( s[i] ) ) s[i] = ::tolower( s[i] );
+            if ( ::islower( s[i] ) ) s[i] = (char) ::toupper( s[i] );
+            else if (::isupper( s[i] ) ) s[i] = (char) ::tolower( s[i] );
         }
 
         return s;
@@ -700,7 +703,7 @@ namespace pystring
             {
                 if ( !previous_is_cased )
                 {
-                    s[i] = ::toupper(c);
+                    s[i] = (char) ::toupper(c);
                 }
                 previous_is_cased = true;
             }
@@ -708,7 +711,7 @@ namespace pystring
             {
                 if ( previous_is_cased )
                 {
-                    s[i] = ::tolower(c);
+                    s[i] = (char) ::tolower(c);
                 }
                 previous_is_cased = true;
             }
@@ -776,9 +779,9 @@ namespace pystring
     ///
     std::string zfill( const std::string & str, int width )
     {
-        std::string::size_type len = str.size();
+        int len = (int)str.size();
 
-        if ( ( int ) len >= width )
+        if ( len >= width )
         {
             return str;
         }
@@ -825,10 +828,10 @@ namespace pystring
     ///
     std::string center( const std::string & str, int width )
     {
-        std::string::size_type len = str.size();
+        int len = (int) str.size();
         int marg, left;
 
-        if ( (( int ) len ) >= width ) return str;
+        if ( len >= width ) return str;
 
         marg = width - len;
         left = marg / 2 + (marg & width & 1);
@@ -842,7 +845,7 @@ namespace pystring
     ///
     int find( const std::string & str, const std::string & sub, int start, int end  )
     {
-        std::string::size_type startp, endp;
+        int startp, endp;
 
         startp = __adjustslicepos( str.size(), start );
         endp = __adjustslicepos( str.size(), end );
@@ -851,12 +854,12 @@ namespace pystring
 
         result = str.find( sub, startp );
 
-        if( result == std::string::npos || result >= endp)
+        if( result == std::string::npos || result >= (std::string::size_type)endp)
         {
             return -1;
         }
 
-        return result;
+        return (int)result;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -872,7 +875,7 @@ namespace pystring
     ///
     int rfind( const std::string & str, const std::string & sub, int start, int end )
     {
-        std::string::size_type startp, endp;
+        int startp, endp;
 
         startp = __adjustslicepos( str.size(), start );
         endp = __adjustslicepos( str.size(), end );
@@ -881,9 +884,10 @@ namespace pystring
 
         result = str.rfind( sub, endp );
 
-        if( result == std::string::npos || result < startp ) return -1;
-        return result;
-
+        if( result == std::string::npos || result < (std::string::size_type)startp )
+            return -1;
+        
+        return (int)result;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -953,7 +957,7 @@ namespace pystring
 
             if ( cursor < 0 ) break;
 
-            cursor += substr.size();
+            cursor += (int) substr.size();
             nummatches += 1;
         }
 
@@ -982,7 +986,7 @@ namespace pystring
 
             s.replace( cursor, oldlen, newstr );
 
-            cursor += newlen;
+            cursor += (int) newlen;
             ++sofar;
         }
 
@@ -1035,7 +1039,7 @@ namespace pystring
     ///
     std::string slice( const std::string & str, int start, int end )
     {
-        std::string::size_type startp, endp;
+        int startp, endp;
 
         startp = __adjustslicepos( str.size(), start );
         endp = __adjustslicepos( str.size(), end );
