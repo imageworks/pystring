@@ -20,5 +20,5 @@ clean:
 .PHONY: test
 test:
 	$(RM) -fr test
-	$(CXX) pystring.cpp test.cpp $(CXXFLAGS) -o test
+	$(CXX) pystring.cpp test.cpp $(CXXFLAGS) -DPYSTRING_UNITTEST=1 -o test
 	./test

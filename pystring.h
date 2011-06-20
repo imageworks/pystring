@@ -37,6 +37,12 @@
 #include <string>
 #include <vector>
 
+#if defined(_WIN32) || defined(_WIN64) || defined(_WINDOWS) || defined(_MSC_VER)
+#ifndef WINDOWS
+#define WINDOWS
+#endif
+#endif
+
 namespace pystring
 {
 
@@ -292,6 +298,90 @@ namespace pystring
     ///
     /// @ }
     ///
-}
+
+
+namespace os
+{
+namespace path
+{
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @defgroup functions pystring::os::path
+    /// @{
+    
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief Return the base name of pathname path. This is the second half of the pair returned
+    /// by split(path). Note that the result of this function is different from the Unix basename
+    /// program; where basename for '/foo/bar/' returns 'bar', the basename() function returns an
+    /// empty string ('').
+    
+    std::string basename(const std::string & path);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief Return the directory name of pathname path. This is the first half of the pair
+    /// returned by split(path).
+    
+    std::string dirname(const std::string & path);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief Return True if path is an absolute pathname. On Unix, that means it begins with a
+    /// slash, on Windows that it begins with a (back)slash after chopping off a potential drive
+    /// letter.
+
+    bool isabs(const std::string & path);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief Join one or more path components intelligently. If any component is an absolute
+    /// path, all previous components (on Windows, including the previous drive letter, if there
+    /// was one) are thrown away, and joining continues. The return value is the concatenation of
+    /// path1, and optionally path2, etc., with exactly one directory separator (os.sep) inserted
+    /// between components, unless path2 is empty. Note that on Windows, since there is a current
+    /// directory for each drive, os.path.join("c:", "foo") represents a path relative to the
+    /// current directory on drive C: (c:foo), not c:\foo.
+    
+    std::string join(const std::string & path1, const std::string & path2);
+    // std::string join(const std::vector< std::string > & paths);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief Normalize a pathname. This collapses redundant separators and up-level references
+    /// so that A//B, A/B/, A/./B and A/foo/../B all become A/B. It does not normalize the case
+    /// (use normcase() for that). On Windows, it converts forward slashes to backward slashes.
+    /// It should be understood that this may change the meaning of the path if it contains
+    /// symbolic links!
+
+    std::string normpath(const std::string & path);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief Split the pathname path into a pair, (head, tail) where tail is the last pathname
+    /// component and head is everything leading up to that. The tail part will never contain a
+    /// slash; if path ends in a slash, tail will be empty. If there is no slash in path, head
+    /// will be empty. If path is empty, both head and tail are empty. Trailing slashes are
+    /// stripped from head unless it is the root (one or more slashes only). In all cases,
+    /// join(head, tail) returns a path to the same location as path (but the strings may
+    /// differ).
+
+    void split(std::string & head, std::string & tail, const std::string & path);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief Split the pathname path into a pair (drive, tail) where drive is either a drive
+    /// specification or the empty string. On systems which do not use drive specifications,
+    /// drive will always be the empty string. In all cases, drive + tail will be the same as
+    /// path.
+
+    void splitdrive(std::string & drivespec, std::string & pathspec, const std::string & path);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief Split the pathname path into a pair (root, ext) such that root + ext == path, and
+    /// ext is empty or begins with a period and contains at most one period. Leading periods on
+    /// the basename are ignored; splitext('.cshrc') returns ('.cshrc', '').
+
+    void splitext(std::string & root, std::string & ext, const std::string & path);
+    
+    ///
+    /// @ }
+    ///
+} // namespace path
+} // namespace os
+
+} // namespace pystring
 
 #endif
