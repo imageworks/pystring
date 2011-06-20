@@ -8,11 +8,39 @@ PYSTRING_TEST_APP(PyStringUnitTests)
 
 PYSTRING_ADD_TEST(pystring, endswith)
 {
+    PYSTRING_CHECK_EQUAL(pystring::endswith("", ""), true);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("", "a"), false);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("a", ""), true);
     PYSTRING_CHECK_EQUAL(pystring::endswith("", ".mesh"), false);
     PYSTRING_CHECK_EQUAL(pystring::endswith("help", ".mesh"), false);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("help", ".mesh", 0), false);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("help", ".mesh", 1), false);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("help", ".mesh", 1, 2), false);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("help", ".mesh", 1, 1), false);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("help", ".mesh", 1, -1), false);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("help", ".mesh", -1), false);
     PYSTRING_CHECK_EQUAL(pystring::endswith(".mesh", ".mesh"), true);
     PYSTRING_CHECK_EQUAL(pystring::endswith("a.mesh", ".mesh"), true);
     PYSTRING_CHECK_EQUAL(pystring::endswith("a.", "."), true);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("abcdef", "ef"), true);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("abcdef", "cdef"), true);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("abcdef", "cdef", 2), true);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("abcdef", "cdef", 3), false);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("abcdef", "cdef", 2, 3), false);
+    PYSTRING_CHECK_EQUAL(pystring::endswith("abcdef", "cdef", -10), true);
+}
+
+PYSTRING_ADD_TEST(pystring, startswith)
+{
+    PYSTRING_CHECK_EQUAL(pystring::startswith("", ""), true);
+    PYSTRING_CHECK_EQUAL(pystring::startswith("", "a"), false);
+    PYSTRING_CHECK_EQUAL(pystring::startswith("a", ""), true);
+    PYSTRING_CHECK_EQUAL(pystring::startswith("abc", "ab"), true);
+    PYSTRING_CHECK_EQUAL(pystring::startswith("abc", "abc"), true);
+    PYSTRING_CHECK_EQUAL(pystring::startswith("abc", "abcd"), false);
+    PYSTRING_CHECK_EQUAL(pystring::startswith("abcdef", "abc"), true);
+    PYSTRING_CHECK_EQUAL(pystring::startswith("abcdef", "abc", 1), false);
+    PYSTRING_CHECK_EQUAL(pystring::startswith("abcdef", "bc", 1), true);
 }
 
 PYSTRING_ADD_TEST(pystring, strip)

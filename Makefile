@@ -1,7 +1,7 @@
 LIBTOOL = libtool
 LIBDIR = /usr/lib
 CXX = g++
-CXXFLAGS = -g -O3 -Wall
+CXXFLAGS = -g -O3 -Wall -Wextra -Wshadow -Wconversion -Wcast-qual -Wformat=2
 
 all: libpystring.la
 
@@ -20,5 +20,5 @@ clean:
 .PHONY: test
 test:
 	$(RM) -fr test
-	$(CXX) pystring.cpp test.cpp -o test
+	$(CXX) pystring.cpp test.cpp $(CXXFLAGS) -o test
 	./test
