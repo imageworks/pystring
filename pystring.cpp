@@ -37,6 +37,7 @@
 #include <cctype>
 #include <cstring>
 #include <iostream>
+#include <sstream>
 
 namespace pystring
 {
@@ -1048,7 +1049,24 @@ namespace pystring
 
         return str.substr( startp, endp - startp );
     }
-
+    
+    
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    ///
+    ///
+    std::string mul( const std::string & str, int n )
+    {
+        // Early exits
+        if (n <= 0) return "";
+        if (n == 1) return str;
+        
+        std::ostringstream os;
+        for(int i=0; i<n; ++i)
+        {
+            os << str;
+        }
+        return os.str();
+    }
 
 
 }//namespace pystring
