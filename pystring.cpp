@@ -766,7 +766,7 @@ namespace pystring
         {
             if ( trans_table[ (int) str[i] ] != -1 )
             {
-                s += table[ s[i] ];
+                s += table[ str[i] ];
             }
         }
 
