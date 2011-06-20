@@ -16,3 +16,9 @@ install: libpystring.la
 
 clean:
 	$(RM) -fr pystring.lo pystring.o libpystring.la .libs
+
+.PHONY: test
+test:
+	$(RM) -fr test
+	$(CXX) pystring.cpp test.cpp -o test
+	./test
