@@ -166,6 +166,12 @@ namespace pystring
     std::string lstrip( const std::string & str, const std::string & chars = "" );
 
     //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief Return a copy of the string, concatenated N times, together.
+    /// Corresponds to the __mul__ operator.
+    /// 
+    std::string mul( const std::string & str, int n);
+    
+    //////////////////////////////////////////////////////////////////////////////////////////////
     /// @brief Split the string around first occurance of sep.
     /// Three strings will always placed into result. If sep is found, the strings will
     /// be the text before sep, sep itself, and the remaining text. If sep is
