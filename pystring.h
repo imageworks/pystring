@@ -333,7 +333,7 @@ namespace path
     /// current directory on drive C: (c:foo), not c:\foo.
     
     std::string join(const std::string & path1, const std::string & path2);
-    // std::string join(const std::vector< std::string > & paths);
+    std::string join(const std::vector< std::string > & paths);
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     /// @brief Normalize a pathname. This collapses redundant separators and up-level references
