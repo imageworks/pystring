@@ -397,40 +397,6 @@ typedef int Py_ssize_t;
     }
 
 
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    int __adjustslicepos( std::string::size_type len_, int pos )
-    {
-        int len = static_cast<int>(len_);
-        int value;
-
-        if ( pos < 0 )
-        {
-            value = len + pos;
-        }
-        else
-        {
-            value = pos;
-        }
-
-        if ( value < 0 )
-        {
-            value = 0;
-        }
-
-        else if ( value > len)
-        {
-            value = len;
-        }
-
-        return value;
-
-    }
-
-
-
     //////////////////////////////////////////////////////////////////////////////////////////////
     ///
     ///
@@ -863,23 +829,32 @@ typedef int Py_ssize_t;
     //////////////////////////////////////////////////////////////////////////////////////////////
     ///
     ///
+    std::string slice( const std::string & str, int start, int end )
+    {
+        ADJUST_INDICES(start, end, (int) str.size());
+        if ( start >= end ) return "";
+        return str.substr( start, end - start );
+    }
+    
+    
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    ///
+    ///
     int find( const std::string & str, const std::string & sub, int start, int end  )
     {
-        int startp, endp;
-
-        startp = __adjustslicepos( str.size(), start );
-        endp = __adjustslicepos( str.size(), end );
-
-        std::string::size_type result;
-
-        result = str.find( sub, startp );
-
-        if( result == std::string::npos || result >= (std::string::size_type)endp)
+        ADJUST_INDICES(start, end, (int) str.size());
+        
+        std::string::size_type result = str.find( sub, start );
+        
+        // If we cannot find the string, or if the end-point of our found substring is past
+        // the allowed end limit, return that it can't be found.
+        if( result == std::string::npos || 
+           (result + sub.size() > (std::string::size_type)end) )
         {
             return -1;
         }
-
-        return (int)result;
+        
+        return (int) result;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -895,16 +870,13 @@ typedef int Py_ssize_t;
     ///
     int rfind( const std::string & str, const std::string & sub, int start, int end )
     {
-        int startp, endp;
-
-        startp = __adjustslicepos( str.size(), start );
-        endp = __adjustslicepos( str.size(), end );
-
-        std::string::size_type result;
-
-        result = str.rfind( sub, endp );
-
-        if( result == std::string::npos || result < (std::string::size_type)startp )
+        ADJUST_INDICES(start, end, (int) str.size());
+        
+        std::string::size_type result = str.rfind( sub, end );
+        
+        if( result == std::string::npos || 
+            result < (std::string::size_type)start  || 
+           (result + sub.size() > (std::string::size_type)end))
             return -1;
         
         return (int)result;
@@ -1054,22 +1026,6 @@ typedef int Py_ssize_t;
 
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string slice( const std::string & str, int start, int end )
-    {
-        int startp, endp;
-
-        startp = __adjustslicepos( str.size(), start );
-        endp = __adjustslicepos( str.size(), end );
-
-        if ( startp >= endp ) return "";
-
-        return str.substr( startp, endp - startp );
-    }
-    
-    
     //////////////////////////////////////////////////////////////////////////////////////////////
     ///
     ///
