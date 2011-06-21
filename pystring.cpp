@@ -42,6 +42,12 @@
 namespace pystring
 {
 
+#if defined(_WIN32) || defined(_WIN64) || defined(_WINDOWS) || defined(_MSC_VER)
+#ifndef WINDOWS
+#define WINDOWS
+#endif
+#endif
+
 // This definition codes from configure.in in the python src.
 // Strictly speaking this limits us to str sizes of 2**31.
 // Should we wish to handle this limit, we could use an architecture

@@ -37,12 +37,6 @@
 #include <string>
 #include <vector>
 
-#if defined(_WIN32) || defined(_WIN64) || defined(_WINDOWS) || defined(_MSC_VER)
-#ifndef WINDOWS
-#define WINDOWS
-#endif
-#endif
-
 namespace pystring
 {
 
