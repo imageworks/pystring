@@ -1131,6 +1131,18 @@ namespace path
     //////////////////////////////////////////////////////////////////////////////////////////////
     ///
     ///
+    std::string abspath(const std::string & path, const std::string & cwd)
+    {
+        std::string p = path;
+        if(!isabs(p)) p = join(cwd, p);
+        return normpath(p);
+    }
+    
+    
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    ///
+    ///
 
     std::string join_nt(const std::vector< std::string > & paths)
     {

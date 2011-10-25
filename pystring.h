@@ -324,6 +324,14 @@ namespace path
     bool isabs(const std::string & path);
 
     //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief Return a normalized absolutized version of the pathname path.
+    /// 
+    /// NOTE: This differs from the interface of the python equivalent in that it requires you
+    /// to pass in the current working directory as an argument.
+    std::string abspath(const std::string & path, const std::string & cwd);
+    
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
     /// @brief Join one or more path components intelligently. If any component is an absolute
     /// path, all previous components (on Windows, including the previous drive letter, if there
     /// was one) are thrown away, and joining continues. The return value is the concatenation of

@@ -163,3 +163,12 @@ PYSTRING_ADD_TEST(pystring, translate)
     PYSTRING_CHECK_EQUAL(pystring::translate("", t2), "");
     PYSTRING_CHECK_EQUAL(pystring::translate("cheese", t2), "chooso");
 }
+
+
+PYSTRING_ADD_TEST(pystring, abspath)
+{
+    PYSTRING_CHECK_EQUAL(pystring::os::path::abspath("", "/net"), "/net");
+    PYSTRING_CHECK_EQUAL(pystring::os::path::abspath("../jeremys", "/net/soft_scratch/users/stevel"), "/net/soft_scratch/users/jeremys");
+    PYSTRING_CHECK_EQUAL(pystring::os::path::abspath("../../../../tmp/a", "/net/soft_scratch/users/stevel"), "/tmp/a");
+ 
+}
