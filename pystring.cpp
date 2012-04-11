@@ -1131,13 +1131,29 @@ namespace path
     //////////////////////////////////////////////////////////////////////////////////////////////
     ///
     ///
-    std::string abspath(const std::string & path, const std::string & cwd)
+    
+    std::string abspath_nt(const std::string & path, const std::string & cwd)
     {
         std::string p = path;
-        if(!isabs(p)) p = join(cwd, p);
-        return normpath(p);
+        if(!isabs_nt(p)) p = join_nt(cwd, p);
+        return normpath_nt(p);
     }
     
+    std::string abspath_posix(const std::string & path, const std::string & cwd)
+    {
+        std::string p = path;
+        if(!isabs_posix(p)) p = join_posix(cwd, p);
+        return normpath_posix(p);
+    }
+    
+    std::string abspath(const std::string & path, const std::string & cwd)
+    {
+#ifdef WINDOWS
+        return abspath_nt(path, cwd);
+#else
+        return abspath_posix(path, cwd);
+#endif
+    }
     
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1372,18 +1388,50 @@ namespace path
     ///
     ///
 
-    std::string basename(const std::string & path)
+    std::string basename_nt(const std::string & path)
     {
         std::string head, tail;
-        split(head, tail, path);
+        split_nt(head, tail, path);
         return tail;
     }
 
-    std::string dirname(const std::string & path)
+    std::string basename_posix(const std::string & path)
     {
         std::string head, tail;
-        split(head, tail, path);
+        split_posix(head, tail, path);
+        return tail;
+    }
+
+    std::string basename(const std::string & path)
+    {
+#ifdef WINDOWS
+        return basename_nt(path);
+#else
+        return basename_posix(path);
+#endif
+    }
+
+    std::string dirname_nt(const std::string & path)
+    {
+        std::string head, tail;
+        split_nt(head, tail, path);
         return head;
+    }
+    
+    std::string dirname_posix(const std::string & path)
+    {
+        std::string head, tail;
+        split_posix(head, tail, path);
+        return head;
+    }
+    
+    std::string dirname(const std::string & path)
+    {
+#ifdef WINDOWS
+        return dirname_nt(path);
+#else
+        return dirname_posix(path);
+#endif
     }
 
 
@@ -1600,140 +1648,5 @@ namespace path
 
 
 }//namespace pystring
-
-
-#ifdef PYSTRING_UNITTEST
-
-#include "unittest.h"
-
-PYSTRING_ADD_TEST(pystring_os_path, splitdrive)
-{
-    using namespace pystring::os::path;
-    
-    std::string drivespec, pathspec;
-    splitdrive_posix(drivespec, pathspec, "/Users/test"); PYSTRING_CHECK_EQUAL(drivespec, ""); PYSTRING_CHECK_EQUAL(pathspec, "/Users/test");
-    splitdrive_nt(drivespec, pathspec, "C:\\Users\\test"); PYSTRING_CHECK_EQUAL(drivespec, "C:" ); PYSTRING_CHECK_EQUAL(pathspec, "\\Users\\test" );
-    splitdrive_nt(drivespec, pathspec, "\\Users\\test"); PYSTRING_CHECK_EQUAL(drivespec, "" ); PYSTRING_CHECK_EQUAL(pathspec, "\\Users\\test" );
-}
-
-PYSTRING_ADD_TEST(pystring_os_path, isabs)
-{
-    using namespace pystring::os::path;
-    
-    PYSTRING_CHECK_EQUAL(isabs_posix("/Users/test"), true );
-    PYSTRING_CHECK_EQUAL(isabs_posix("\\Users\\test"), false);
-    PYSTRING_CHECK_EQUAL(isabs_posix("../Users"), false);
-    PYSTRING_CHECK_EQUAL(isabs_posix("Users"), false);
-    
-    PYSTRING_CHECK_EQUAL(isabs_nt("C:\\Users\\test"), true);
-    PYSTRING_CHECK_EQUAL(isabs_nt("C:/Users"), true);
-    PYSTRING_CHECK_EQUAL(isabs_nt("/Users"), true);
-    PYSTRING_CHECK_EQUAL(isabs_nt("../Users"), false);
-    PYSTRING_CHECK_EQUAL(isabs_nt("..\\Users"), false);
-}
-
-PYSTRING_ADD_TEST(pystring_os_path, join)
-{
-    using namespace pystring::os::path;
-    
-    PYSTRING_CHECK_EQUAL(join_posix("a","b"), "a/b" );
-    PYSTRING_CHECK_EQUAL(join_posix("/a","b"), "/a/b" );
-    PYSTRING_CHECK_EQUAL(join_posix("/a","/b"), "/b" );
-    PYSTRING_CHECK_EQUAL(join_posix("a","/b"), "/b" );
-    PYSTRING_CHECK_EQUAL(join_posix("//a","b"), "//a/b" );
-    PYSTRING_CHECK_EQUAL(join_posix("//a","b//"), "//a/b//" );
-    PYSTRING_CHECK_EQUAL(join_posix("../a","/b"), "/b" );
-    PYSTRING_CHECK_EQUAL(join_posix("../a","b"), "../a/b" );
-    
-    std::vector< std::string > paths;
-    PYSTRING_CHECK_EQUAL(join_posix(paths), "" );
-    paths.push_back("/a");
-    PYSTRING_CHECK_EQUAL(join_posix(paths), "/a" );
-    paths.push_back("b");
-    PYSTRING_CHECK_EQUAL(join_posix(paths), "/a/b" );
-    paths.push_back("c/");
-    PYSTRING_CHECK_EQUAL(join_posix(paths), "/a/b/c/" );
-    paths.push_back("d");
-    PYSTRING_CHECK_EQUAL(join_posix(paths), "/a/b/c/d" );
-    paths.push_back("/e");
-    PYSTRING_CHECK_EQUAL(join_posix(paths), "/e" );
-    
-    PYSTRING_CHECK_EQUAL(join_nt("c:","/a"), "c:/a" );
-    PYSTRING_CHECK_EQUAL(join_nt("c:/","/a"), "c:/a" );
-    PYSTRING_CHECK_EQUAL(join_nt("c:/a","/b"), "/b" );
-    PYSTRING_CHECK_EQUAL(join_nt("c:","d:/"), "d:/" );
-    PYSTRING_CHECK_EQUAL(join_nt("c:/","d:/"), "d:/" );
-    PYSTRING_CHECK_EQUAL(join_nt("a","b"), "a\\b" );
-    PYSTRING_CHECK_EQUAL(join_nt("\\a","b"), "\\a\\b" );
-    PYSTRING_CHECK_EQUAL(join_nt("c:\\a","b"), "c:\\a\\b" );
-    PYSTRING_CHECK_EQUAL(join_nt("c:\\a","c:\\b"), "c:\\b" );
-    PYSTRING_CHECK_EQUAL(join_nt("..\\a","b"), "..\\a\\b" );
-}
-
-PYSTRING_ADD_TEST(pystring_os_path, normpath)
-{
-    using namespace pystring::os::path;
-    
-    PYSTRING_CHECK_EQUAL(normpath_posix("A//B"), "A/B" );
-    PYSTRING_CHECK_EQUAL(normpath_posix("A/./B"), "A/B" );
-    PYSTRING_CHECK_EQUAL(normpath_posix("A/foo/../B"), "A/B" );
-    PYSTRING_CHECK_EQUAL(normpath_posix("/A//B"), "/A/B" );
-    PYSTRING_CHECK_EQUAL(normpath_posix("//A//B"), "//A/B" );
-    PYSTRING_CHECK_EQUAL(normpath_posix("///A//B"), "/A/B" );
-    PYSTRING_CHECK_EQUAL(normpath_posix("../A"), "../A" );
-    PYSTRING_CHECK_EQUAL(normpath_posix("../A../"), "../A.." );
-    PYSTRING_CHECK_EQUAL(normpath_posix("FOO/../A../././B"), "A../B" );
-    
-    PYSTRING_CHECK_EQUAL(normpath_nt(""), "." );
-    PYSTRING_CHECK_EQUAL(normpath_nt("A"), "A" );
-    PYSTRING_CHECK_EQUAL(normpath_nt("A./B"), "A.\\B" );
-    PYSTRING_CHECK_EQUAL(normpath_nt("C:\\"), "C:\\" );
-    PYSTRING_CHECK_EQUAL(normpath_nt("C:\\A"), "C:\\A" );
-    PYSTRING_CHECK_EQUAL(normpath_nt("C:/A"), "C:\\A" );
-    PYSTRING_CHECK_EQUAL(normpath_nt("C:/A..\\"), "C:\\A.." );
-    PYSTRING_CHECK_EQUAL(normpath_nt("C:/A..\\..\\"), "C:\\" );
-    PYSTRING_CHECK_EQUAL(normpath_nt("C:\\\\A"), "C:\\A" );
-    PYSTRING_CHECK_EQUAL(normpath_nt("C:\\\\\\A\\\\B"), "C:\\A\\B" );
-}
-
-PYSTRING_ADD_TEST(pystring_os_path, split)
-{
-    using namespace pystring::os::path;
-    
-    std::string head, tail;
-    split_posix(head, tail, "");  PYSTRING_CHECK_EQUAL(head, "" );  PYSTRING_CHECK_EQUAL(tail, "" );
-    split_posix(head, tail, "/");  PYSTRING_CHECK_EQUAL(head, "/" );  PYSTRING_CHECK_EQUAL(tail, "" );
-    split_posix(head, tail, "a");  PYSTRING_CHECK_EQUAL(head, "" );  PYSTRING_CHECK_EQUAL(tail, "a" );
-    split_posix(head, tail, "a/");  PYSTRING_CHECK_EQUAL(head, "a" );  PYSTRING_CHECK_EQUAL(tail, "" );
-    split_posix(head, tail, "/a");  PYSTRING_CHECK_EQUAL(head, "/" );  PYSTRING_CHECK_EQUAL(tail, "a" );
-    split_posix(head, tail, "/a/b/");  PYSTRING_CHECK_EQUAL(head, "/a/b" );  PYSTRING_CHECK_EQUAL(tail, "" );
-    split_posix(head, tail, "/a/b");  PYSTRING_CHECK_EQUAL(head, "/a" );  PYSTRING_CHECK_EQUAL(tail, "b" );
-    
-    split_nt(head, tail, "");  PYSTRING_CHECK_EQUAL(head, "" );  PYSTRING_CHECK_EQUAL(tail, "" );
-    split_nt(head, tail, "\\");  PYSTRING_CHECK_EQUAL(head, "\\" );  PYSTRING_CHECK_EQUAL(tail, "" );
-    split_nt(head, tail, "a");  PYSTRING_CHECK_EQUAL(head, "" );  PYSTRING_CHECK_EQUAL(tail, "a" );
-    split_nt(head, tail, "a\\");  PYSTRING_CHECK_EQUAL(head, "a" );  PYSTRING_CHECK_EQUAL(tail, "" );
-    split_nt(head, tail, "c:\\a");  PYSTRING_CHECK_EQUAL(head, "c:\\" );  PYSTRING_CHECK_EQUAL(tail, "a" );
-    split_nt(head, tail, "c:\\a\\b");  PYSTRING_CHECK_EQUAL(head, "c:\\a" );  PYSTRING_CHECK_EQUAL(tail, "b" );
-    split_nt(head, tail, "c:\\a\\b\\");  PYSTRING_CHECK_EQUAL(head, "c:\\a\\b" );  PYSTRING_CHECK_EQUAL(tail, "" );
-}
-
-PYSTRING_ADD_TEST(pystring_os_path, splitext)
-{
-    using namespace pystring::os::path;
-    
-    std::string root, ext;
-    splitext_nt(root, ext, ""); PYSTRING_CHECK_EQUAL(root, ""); PYSTRING_CHECK_EQUAL(ext, "");
-    splitext_nt(root, ext, "."); PYSTRING_CHECK_EQUAL(root, "."); PYSTRING_CHECK_EQUAL(ext, "");
-    splitext_nt(root, ext, ".foo"); PYSTRING_CHECK_EQUAL(root, ".foo"); PYSTRING_CHECK_EQUAL(ext, "");
-    splitext_nt(root, ext, ".foo."); PYSTRING_CHECK_EQUAL(root, ".foo"); PYSTRING_CHECK_EQUAL(ext, ".");
-    splitext_nt(root, ext, ".foo.e"); PYSTRING_CHECK_EQUAL(root, ".foo"); PYSTRING_CHECK_EQUAL(ext, ".e");
-    splitext_nt(root, ext, "c"); PYSTRING_CHECK_EQUAL(root, "c"); PYSTRING_CHECK_EQUAL(ext, "");
-    splitext_nt(root, ext, "a_b.c"); PYSTRING_CHECK_EQUAL(root, "a_b"); PYSTRING_CHECK_EQUAL(ext, ".c");
-    splitext_nt(root, ext, "c:\\a.b.c"); PYSTRING_CHECK_EQUAL(root, "c:\\a.b"); PYSTRING_CHECK_EQUAL(ext, ".c");
-    splitext_nt(root, ext, "c:\\a_b.c"); PYSTRING_CHECK_EQUAL(root, "c:\\a_b"); PYSTRING_CHECK_EQUAL(ext, ".c");
-}
-
-#endif
 
 
