@@ -967,6 +967,7 @@ typedef int Py_ssize_t;
     //////////////////////////////////////////////////////////////////////////////////////////////
     ///
     ///
+    
     std::string replace( const std::string & str, const std::string & oldstr, const std::string & newstr, int count )
     {
         int sofar = 0;
@@ -974,8 +975,10 @@ typedef int Py_ssize_t;
         std::string s( str );
 
         std::string::size_type oldlen = oldstr.size(), newlen = newstr.size();
+        
+        cursor = find( s, oldstr, cursor );
 
-        while ( ( cursor = find( s, oldstr, cursor ) ) != -1 )
+        while ( cursor != -1 && cursor <= (int)s.size() )
         {
             if ( count > -1 && sofar >= count )
             {
@@ -983,15 +986,25 @@ typedef int Py_ssize_t;
             }
 
             s.replace( cursor, oldlen, newstr );
-
             cursor += (int) newlen;
+
+            if ( oldlen != 0)
+            {
+                cursor = find( s, oldstr, cursor );
+            }
+            else
+            {
+                ++cursor;
+            }
+
             ++sofar;
         }
 
         return s;
 
     }
-
+    
+    
     //////////////////////////////////////////////////////////////////////////////////////////////
     ///
     ///

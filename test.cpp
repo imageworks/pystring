@@ -94,6 +94,16 @@ PYSTRING_ADD_TEST(pystring, rfind)
     PYSTRING_CHECK_EQUAL(pystring::rfind("abcabcabc", "abc", 6, 8), -1);
 }
 
+PYSTRING_ADD_TEST(pystring, replace)
+{
+    PYSTRING_CHECK_EQUAL(pystring::replace("abcdef", "foo", "bar"), "abcdef");
+    PYSTRING_CHECK_EQUAL(pystring::replace("abcdef", "ab", "cd"), "cdcdef");
+    PYSTRING_CHECK_EQUAL(pystring::replace("abcdef", "ab", ""), "cdef");
+    PYSTRING_CHECK_EQUAL(pystring::replace("abcabc", "ab", ""), "cc");
+    PYSTRING_CHECK_EQUAL(pystring::replace("abcdef", "", ""), "abcdef");
+    PYSTRING_CHECK_EQUAL(pystring::replace("abcdef", "", "."), ".a.b.c.d.e.f.");
+}
+
 PYSTRING_ADD_TEST(pystring, slice)
 {
     PYSTRING_CHECK_EQUAL(pystring::slice(""), "");
