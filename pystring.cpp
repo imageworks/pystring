@@ -202,7 +202,7 @@ typedef int Py_ssize_t;
     {
         if ( maxsplit < 0 )
         {
-            split( str, result, sep, 0 );
+            split( str, result, sep, maxsplit );
             return;
         }
 
@@ -214,11 +214,11 @@ typedef int Py_ssize_t;
             return;
         }
 
-        std::string::size_type i,j, len = str.size(), n = sep.size();
+        Py_ssize_t i,j, len = (Py_ssize_t) str.size(), n = (Py_ssize_t) sep.size();
 
         i = j = len;
 
-        while ( i > n )
+        while ( i >= n )
         {
             if ( str[i - 1] == sep[n - 1] && str.substr( i - n, n ) == sep )
             {

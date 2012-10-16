@@ -5,7 +5,6 @@
 
 PYSTRING_TEST_APP(PyStringUnitTests)
 
-
 PYSTRING_ADD_TEST(pystring, endswith)
 {
     PYSTRING_CHECK_EQUAL(pystring::endswith("", ""), true);
@@ -122,6 +121,343 @@ PYSTRING_ADD_TEST(pystring, slice)
     PYSTRING_CHECK_EQUAL(pystring::slice("abcdef",-1), "f");
     PYSTRING_CHECK_EQUAL(pystring::slice("abcdef",0,-1), "abcde");
 }
+
+PYSTRING_ADD_TEST(pystring, split)
+{
+    std::vector< std::string > result;
+    
+    {
+        result.clear();
+        pystring::split("", result, "/", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 1);
+        if(result.size()==1)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::split("/", result, "/", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+            PYSTRING_CHECK_EQUAL(result[1], "");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::split(" ", result, " ", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+            PYSTRING_CHECK_EQUAL(result[1], "");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::split(" /", result, "/", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], " ");
+            PYSTRING_CHECK_EQUAL(result[1], "");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::split(" //", result, "/", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], " ");
+            PYSTRING_CHECK_EQUAL(result[1], "/");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::split("a  ", result, " ", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "a");
+            PYSTRING_CHECK_EQUAL(result[1], " ");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::split("//as//rew//gdf", result, "//");
+        PYSTRING_CHECK_EQUAL(result.size(), 4);
+        if(result.size()==4)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+            PYSTRING_CHECK_EQUAL(result[1], "as");
+            PYSTRING_CHECK_EQUAL(result[2], "rew");
+            PYSTRING_CHECK_EQUAL(result[3], "gdf");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::split("/root", result, "/", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+            PYSTRING_CHECK_EQUAL(result[1], "root");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::split("/root/world", result, "/", 0);
+        PYSTRING_CHECK_EQUAL(result.size(), 1);
+        if(result.size()==1)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "/root/world");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::split("/root/world", result, "/", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+            PYSTRING_CHECK_EQUAL(result[1], "root/world");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::split("/root/world", result, "/", 2);
+        PYSTRING_CHECK_EQUAL(result.size(), 3);
+        if(result.size()==3)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+            PYSTRING_CHECK_EQUAL(result[1], "root");
+            PYSTRING_CHECK_EQUAL(result[2], "world");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::split("/root/world", result, "/", -1);
+        PYSTRING_CHECK_EQUAL(result.size(), 3);
+        if(result.size()==3)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+            PYSTRING_CHECK_EQUAL(result[1], "root");
+            PYSTRING_CHECK_EQUAL(result[2], "world");
+        }
+    }
+}
+
+PYSTRING_ADD_TEST(pystring, rsplit)
+{
+    std::vector< std::string > result;
+    {
+        result.clear();
+        pystring::rsplit("", result, "/", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 1);
+        if(result.size()==1)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+        }
+    }
+    
+    {
+        // "".rsplit(None, 1)
+        result.clear();
+        pystring::rsplit("", result, "", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 0);
+    }
+    
+    {
+        // " ".rsplit(None, 1)
+        result.clear();
+        pystring::rsplit(" ", result, "", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 0);
+    }
+    
+    {
+        result.clear();
+        pystring::rsplit("  ", result, "", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 0);
+    }
+    
+    {
+        result.clear();
+        pystring::rsplit("/", result, "/", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+            PYSTRING_CHECK_EQUAL(result[1], "");
+        }
+    }
+    
+    
+    {
+        result.clear();
+        pystring::rsplit(" /", result, "/", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], " ");
+            PYSTRING_CHECK_EQUAL(result[1], "");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::rsplit(" //", result, "/", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], " /");
+            PYSTRING_CHECK_EQUAL(result[1], "");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::rsplit("/root", result, "/", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+            PYSTRING_CHECK_EQUAL(result[1], "root");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::rsplit("/root/world", result, "/", 0);
+        PYSTRING_CHECK_EQUAL(result.size(), 1);
+        if(result.size()==1)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "/root/world");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::rsplit("/root/world", result, "/", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "/root");
+            PYSTRING_CHECK_EQUAL(result[1], "world");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::rsplit("/root/world", result, "/", 2);
+        PYSTRING_CHECK_EQUAL(result.size(), 3);
+        if(result.size()==3)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+            PYSTRING_CHECK_EQUAL(result[1], "root");
+            PYSTRING_CHECK_EQUAL(result[2], "world");
+        }
+    }
+    
+    {
+        result.clear();
+        pystring::rsplit("/root/world", result, "/", -1);
+        PYSTRING_CHECK_EQUAL(result.size(), 3);
+        if(result.size()==3)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+            PYSTRING_CHECK_EQUAL(result[1], "root");
+            PYSTRING_CHECK_EQUAL(result[2], "world");
+        }
+    }
+    
+    {
+        // " root world".rsplit(None, 0)
+        result.clear();
+        pystring::rsplit(" root world", result, "", 0);
+        PYSTRING_CHECK_EQUAL(result.size(), 1);
+        if(result.size()==1)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], " root world");
+        }
+    }
+    
+    {
+        // " root world".rsplit(None, 1)
+        result.clear();
+        pystring::rsplit(" root world", result, "", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], " root");
+            PYSTRING_CHECK_EQUAL(result[1], "world");
+        }
+    }
+    
+    {
+        // " root world".rsplit(None, 2)
+        result.clear();
+        pystring::rsplit(" root world", result, "", 2);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "root");
+            PYSTRING_CHECK_EQUAL(result[1], "world");
+        }
+    }
+    
+    
+    {
+        // " root world".rsplit(" ", 0)
+        result.clear();
+        pystring::rsplit(" root world", result, " ", 0);
+        PYSTRING_CHECK_EQUAL(result.size(), 1);
+        if(result.size()==1)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], " root world");
+        }
+    }
+    
+    {
+        // " root world".rsplit(" ", 1)
+        result.clear();
+        pystring::rsplit(" root world", result, " ", 1);
+        PYSTRING_CHECK_EQUAL(result.size(), 2);
+        if(result.size()==2)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], " root");
+            PYSTRING_CHECK_EQUAL(result[1], "world");
+        }
+    }
+    
+    {
+        // " root world".rsplit(" ", 2)
+        result.clear();
+        pystring::rsplit(" root world", result, " ", 2);
+        PYSTRING_CHECK_EQUAL(result.size(), 3);
+        if(result.size()==3)
+        {
+            PYSTRING_CHECK_EQUAL(result[0], "");
+            PYSTRING_CHECK_EQUAL(result[1], "root");
+            PYSTRING_CHECK_EQUAL(result[2], "world");
+        }
+    }
+}
+
+
 
 PYSTRING_ADD_TEST(pystring, startswith)
 {
@@ -300,4 +636,3 @@ PYSTRING_ADD_TEST(pystring_os_path, splitext)
     splitext_nt(root, ext, "c:\\a.b.c"); PYSTRING_CHECK_EQUAL(root, "c:\\a.b"); PYSTRING_CHECK_EQUAL(ext, ".c");
     splitext_nt(root, ext, "c:\\a_b.c"); PYSTRING_CHECK_EQUAL(root, "c:\\a_b"); PYSTRING_CHECK_EQUAL(ext, ".c");
 }
-
