@@ -74,6 +74,85 @@ typedef int Py_ssize_t;
 
 
 	namespace {
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        ///
+        ///
+        const static int LEFTSTRIP  = 0;
+        const static int RIGHTSTRIP = 1;
+        const static int BOTHSTRIP  = 2;
+
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        ///
+        ///
+        std::string do_strip( const std::string & str, int striptype, const std::string & chars  )
+        {
+            Py_ssize_t len = static_cast<Py_ssize_t>(str.size());
+            Py_ssize_t i;
+            Py_ssize_t j;
+            size_t charslen = chars.size();
+
+            if ( charslen == 0 )
+            {
+                i = 0;
+                if ( striptype != RIGHTSTRIP )
+                {
+                    while ( i < len && ::isspace( str[static_cast<size_t>(i)] ) )
+                    {
+                        i++;
+                    }
+                }
+
+                j = len;
+                if ( striptype != LEFTSTRIP )
+                {
+                    do
+                    {
+                        j--;
+                    }
+                    while (j >= i && ::isspace(str[static_cast<size_t>(j)]));
+
+                    j++;
+                }
+
+
+            }
+            else
+            {
+                const char * sep = chars.c_str();
+
+                i = 0;
+                if ( striptype != RIGHTSTRIP )
+                {
+                    while ( i < len && memchr(sep, str[static_cast<size_t>(i)], charslen) )
+                    {
+                        i++;
+                    }
+                }
+
+                j = len;
+                if (striptype != LEFTSTRIP)
+                {
+                    do
+                    {
+                        j--;
+                    }
+                    while (j >= i &&  memchr(sep, str[static_cast<size_t>(j)], charslen)  );
+                    j++;
+                }
+
+
+            }
+
+            if ( i == 0 && j == len )
+            {
+                return str;
+            }
+            else
+            {
+                return str.substr( static_cast<size_t>(i), static_cast<size_t>(j - i) );
+            }
+
+        }
 
 		//////////////////////////////////////////////////////////////////////////////////////////////
 		/// why doesn't the std::reverse work?
@@ -154,6 +233,51 @@ typedef int Py_ssize_t;
 			reverse_strings( result );
 		}
 
+
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        ///
+        ///
+
+        // Split the extension from a pathname.
+        // Extension is everything from the last dot to the end, ignoring
+        // leading dots.  Returns "(root, ext)"; ext may be empty.
+        // It is always true that root + ext == p
+
+        void splitext_generic(std::string & root, std::string & ext,
+                const std::string & p,
+                const std::string & sep,
+                const std::string & altsep,
+                const std::string & extsep)
+        {
+            int sepIndex = pystring::rfind(p, sep);
+            if(!altsep.empty())
+            {
+                int altsepIndex = pystring::rfind(p, altsep);
+                sepIndex = std::max(sepIndex, altsepIndex);
+            }
+
+            int dotIndex = pystring::rfind(p, extsep);
+            if(dotIndex > sepIndex)
+            {
+                // Skip all leading dots
+                int filenameIndex = sepIndex + 1;
+
+                while(filenameIndex < dotIndex)
+                {
+                    if(pystring::slice(p,filenameIndex) != extsep)
+                    {
+                        root = pystring::slice(p, 0, dotIndex);
+                        ext = pystring::slice(p, dotIndex);
+                        return;
+                    }
+
+                    filenameIndex += 1;
+                }
+            }
+
+            root = p;
+            ext = "";
+        }
 	} //anonymous namespace
 
 
@@ -214,7 +338,10 @@ typedef int Py_ssize_t;
             return;
         }
 
-        Py_ssize_t i,j, len = (Py_ssize_t) str.size(), n = (Py_ssize_t) sep.size();
+        size_t i;
+        size_t j;
+        size_t len = str.size();
+        size_t n = sep.size();
 
         i = j = len;
 
@@ -237,82 +364,6 @@ typedef int Py_ssize_t;
         reverse_strings( result );
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    #define LEFTSTRIP 0
-    #define RIGHTSTRIP 1
-    #define BOTHSTRIP 2
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string do_strip( const std::string & str, int striptype, const std::string & chars  )
-    {
-        Py_ssize_t len = (Py_ssize_t) str.size(), i, j, charslen = (Py_ssize_t) chars.size();
-
-        if ( charslen == 0 )
-        {
-            i = 0;
-            if ( striptype != RIGHTSTRIP )
-            {
-                while ( i < len && ::isspace( str[i] ) )
-                {
-                    i++;
-                }
-            }
-
-            j = len;
-            if ( striptype != LEFTSTRIP )
-            {
-                do
-                {
-                    j--;
-                }
-                while (j >= i && ::isspace(str[j]));
-
-                j++;
-            }
-
-
-        }
-        else
-        {
-            const char * sep = chars.c_str();
-
-            i = 0;
-            if ( striptype != RIGHTSTRIP )
-            {
-                while ( i < len && memchr(sep, str[i], charslen) )
-                {
-                    i++;
-                }
-            }
-
-            j = len;
-            if (striptype != LEFTSTRIP)
-            {
-                do
-                {
-                    j--;
-                }
-                while (j >= i &&  memchr(sep, str[j], charslen)  );
-                j++;
-            }
-
-
-        }
-
-        if ( i == 0 && j == len )
-        {
-            return str;
-        }
-        else
-        {
-            return str.substr( i, j - i );
-        }
-
-    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     ///
@@ -329,9 +380,9 @@ typedef int Py_ssize_t;
         }
         else
         {
-            result[0] = str.substr( 0, index );
+            result[0] = str.substr( 0, static_cast<size_t>(index) );
             result[1] = sep;
-            result[2] = str.substr( index + sep.size(), str.size() );
+            result[2] = str.substr( static_cast<size_t>(index) + sep.size(), str.size() );
         }
     }
 
@@ -350,9 +401,9 @@ typedef int Py_ssize_t;
         }
         else
         {
-            result[0] = str.substr( 0, index );
+            result[0] = str.substr( 0, static_cast<size_t>(index) );
             result[1] = sep;
-            result[2] = str.substr( index + sep.size(), str.size() );
+            result[2] = str.substr( static_cast<size_t>(index) + sep.size(), str.size() );
         }
     }
 
@@ -418,8 +469,8 @@ typedef int Py_ssize_t;
                               Py_ssize_t start, Py_ssize_t end,
                               int direction)
         {
-            Py_ssize_t len = (Py_ssize_t) self.size();
-            Py_ssize_t slen = (Py_ssize_t) substr.size();
+            Py_ssize_t len = static_cast<Py_ssize_t>(self.size());
+            Py_ssize_t slen = static_cast<Py_ssize_t>(substr.size());
             
             const char* sub = substr.c_str();
             const char* str = self.c_str();
@@ -438,7 +489,7 @@ typedef int Py_ssize_t;
                     start = end - slen;
             }
             if (end-start >= slen)
-                return (!std::memcmp(str+start, sub, slen));
+                return (!std::memcmp(str+start, sub, static_cast<size_t>(slen)));
             
             return 0;
         }
@@ -447,7 +498,7 @@ typedef int Py_ssize_t;
     bool endswith( const std::string & str, const std::string & suffix, int start, int end )
     {
         int result = _string_tailmatch(str, suffix,
-                                       (Py_ssize_t) start, (Py_ssize_t) end, +1);
+                Py_ssize_t(start), Py_ssize_t(end), +1);
         //if (result == -1) // TODO: Error condition
         
         return static_cast<bool>(result);
@@ -457,7 +508,7 @@ typedef int Py_ssize_t;
     bool startswith( const std::string & str, const std::string & prefix, int start, int end )
     {
         int result = _string_tailmatch(str, prefix,
-                                       (Py_ssize_t) start, (Py_ssize_t) end, -1);
+                static_cast<Py_ssize_t>(start), static_cast<Py_ssize_t>(end), -1);
         //if (result == -1) // TODO: Error condition
         
         return static_cast<bool>(result);
@@ -492,11 +543,11 @@ typedef int Py_ssize_t;
     {
         std::string::size_type len = str.size(), i;
         if ( len == 0 ) return false;
-        if( len == 1 ) return ::isalpha( (int) str[0] );
+        if( len == 1 ) return ::isalpha( static_cast<int>(str[0]) );
 
         for ( i = 0; i < len; ++i )
         {
-           if ( !::isalpha( (int) str[i] ) ) return false;
+            if ( !::isalpha( static_cast<int>(str[i]) ) ) return false;
         }
         return true;
     }
@@ -619,12 +670,12 @@ typedef int Py_ssize_t;
 
         if ( len > 0)
         {
-            if (::islower(s[0])) s[0] = (char) ::toupper( s[0] );
+            if (::islower(s[0])) s[0] = static_cast<char>(::toupper( s[0] ));
         }
 
         for ( i = 1; i < len; ++i )
         {
-            if (::isupper(s[i])) s[i] = (char) ::tolower( s[i] );
+            if (::isupper(s[i])) s[i] = static_cast<char>(::tolower( s[i] ));
         }
 
         return s;
@@ -640,7 +691,7 @@ typedef int Py_ssize_t;
 
         for ( i = 0; i < len; ++i )
         {
-            if ( ::isupper( s[i] ) ) s[i] = (char) ::tolower( s[i] );
+            if ( ::isupper( s[i] ) ) s[i] = static_cast<char>(::tolower( s[i] ));
         }
 
         return s;
@@ -656,7 +707,7 @@ typedef int Py_ssize_t;
 
         for ( i = 0; i < len; ++i )
         {
-            if ( ::islower( s[i] ) ) s[i] = (char) ::toupper( s[i] );
+            if ( ::islower( s[i] ) ) s[i] = static_cast<char>(::toupper( s[i] ));
         }
 
         return s;
@@ -672,8 +723,8 @@ typedef int Py_ssize_t;
 
         for ( i = 0; i < len; ++i )
         {
-            if ( ::islower( s[i] ) ) s[i] = (char) ::toupper( s[i] );
-            else if (::isupper( s[i] ) ) s[i] = (char) ::tolower( s[i] );
+            if ( ::islower( s[i] ) ) s[i] = static_cast<char>(::toupper( s[i] ));
+            else if (::isupper( s[i] ) ) s[i] = static_cast<char>(::tolower( s[i] ));
         }
 
         return s;
@@ -695,7 +746,7 @@ typedef int Py_ssize_t;
             {
                 if ( !previous_is_cased )
                 {
-                    s[i] = (char) ::toupper(c);
+                    s[i] = static_cast<char>(::toupper(c));
                 }
                 previous_is_cased = true;
             }
@@ -703,7 +754,7 @@ typedef int Py_ssize_t;
             {
                 if ( previous_is_cased )
                 {
-                    s[i] = (char) ::tolower(c);
+                    s[i] = static_cast<char>(::tolower(c));
                 }
                 previous_is_cased = true;
             }
@@ -736,28 +787,28 @@ typedef int Py_ssize_t;
             s = str;
             for ( std::string::size_type i = 0; i < len; ++i )
             {
-                s[i] = table[ s[i] ];
+                s[i] = table[ static_cast<size_t>(s[i]) ];
             }
             return s;
         }
 
 
         int trans_table[256];
-        for ( int i = 0; i < 256; i++)
+        for ( size_t i = 0; i < 256; i++)
         {
             trans_table[i] = table[i];
         }
 
         for ( std::string::size_type i = 0; i < dellen; i++)
         {
-            trans_table[(int) deletechars[i] ] = -1;
+            trans_table[static_cast<int>(deletechars[i]) ] = -1;
         }
 
         for ( std::string::size_type i = 0; i < len; ++i )
         {
-            if ( trans_table[ (int) str[i] ] != -1 )
+            if ( trans_table[ static_cast<int>(str[i]) ] != -1 )
             {
-                s += table[ str[i] ];
+                s += table[ static_cast<size_t>(str[i]) ];
             }
         }
 
@@ -771,16 +822,16 @@ typedef int Py_ssize_t;
     ///
     std::string zfill( const std::string & str, int width )
     {
-        int len = (int)str.size();
+        size_t len = str.size();
 
-        if ( len >= width )
+        if ( len >= static_cast<size_t>(width) )
         {
             return str;
         }
 
         std::string s( str );
 
-        int fill = width - len;
+        size_t fill = static_cast<size_t>(width) - len;
 
         s = std::string( fill, '0' ) + s;
 
@@ -801,8 +852,8 @@ typedef int Py_ssize_t;
     std::string ljust( const std::string & str, int width )
     {
         std::string::size_type len = str.size();
-        if ( (( int ) len ) >= width ) return str;
-        return str + std::string( width - len, ' ' );
+        if ( (static_cast<int>(len) ) >= width ) return str;
+        return str + std::string( static_cast<size_t>(width) - len, ' ' );
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -811,8 +862,8 @@ typedef int Py_ssize_t;
     std::string rjust( const std::string & str, int width )
     {
         std::string::size_type len = str.size();
-        if ( (( int ) len ) >= width ) return str;
-        return std::string( width - len, ' ' ) + str;
+        if ( (static_cast<int>(len) ) >= width ) return str;
+        return std::string( static_cast<size_t>(width) - len, ' ' ) + str;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -820,7 +871,7 @@ typedef int Py_ssize_t;
     ///
     std::string center( const std::string & str, int width )
     {
-        int len = (int) str.size();
+        int len = static_cast<int>(str.size());
         int marg, left;
 
         if ( len >= width ) return str;
@@ -828,7 +879,7 @@ typedef int Py_ssize_t;
         marg = width - len;
         left = marg / 2 + (marg & width & 1);
 
-        return std::string( left, ' ' ) + str + std::string( marg - left, ' ' );
+        return std::string( static_cast<size_t>(left), ' ' ) + str + std::string( static_cast<size_t>(marg - left), ' ' );
 
     }
 
@@ -837,9 +888,9 @@ typedef int Py_ssize_t;
     ///
     std::string slice( const std::string & str, int start, int end )
     {
-        ADJUST_INDICES(start, end, (int) str.size());
+        ADJUST_INDICES(start, end, static_cast<int>(str.size()));
         if ( start >= end ) return "";
-        return str.substr( start, end - start );
+        return str.substr( static_cast<size_t>(start), static_cast<size_t>(end - start) );
     }
     
     
@@ -848,19 +899,19 @@ typedef int Py_ssize_t;
     ///
     int find( const std::string & str, const std::string & sub, int start, int end  )
     {
-        ADJUST_INDICES(start, end, (int) str.size());
+        ADJUST_INDICES(start, end, static_cast<int>(str.size()));
         
-        std::string::size_type result = str.find( sub, start );
+        std::string::size_type result = str.find( sub, static_cast<size_t>(start) );
         
         // If we cannot find the string, or if the end-point of our found substring is past
         // the allowed end limit, return that it can't be found.
         if( result == std::string::npos || 
-           (result + sub.size() > (std::string::size_type)end) )
+                (result + sub.size() > static_cast<std::string::size_type>(end)) )
         {
             return -1;
         }
         
-        return (int) result;
+        return static_cast<int>(result);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -876,16 +927,16 @@ typedef int Py_ssize_t;
     ///
     int rfind( const std::string & str, const std::string & sub, int start, int end )
     {
-        ADJUST_INDICES(start, end, (int) str.size());
+        ADJUST_INDICES(start, end, static_cast<int>(str.size()));
         
-        std::string::size_type result = str.rfind( sub, end );
+        std::string::size_type result = str.rfind( sub, static_cast<size_t>(end) );
         
         if( result == std::string::npos || 
-            result < (std::string::size_type)start  || 
-           (result + sub.size() > (std::string::size_type)end))
+                result < static_cast<std::string::size_type>(start)  ||
+                (result + sub.size() > static_cast<std::string::size_type>(end)))
             return -1;
         
-        return (int)result;
+        return static_cast<int>(result);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -917,12 +968,12 @@ typedef int Py_ssize_t;
                 {
                     int fillsize = tabsize - (j % tabsize);
                     j += fillsize;
-                    s.replace( i + offset, 1, std::string( fillsize, ' ' ));
+                    s.replace(i + static_cast<size_t>(offset), 1, std::string( static_cast<size_t>(fillsize), ' ' ));
                     offset += fillsize - 1;
                 }
                 else
                 {
-                    s.replace( i + offset, 1, "" );
+                    s.replace( i + static_cast<size_t>(offset), 1, "" );
                     offset -= 1;
                 }
 
@@ -955,7 +1006,7 @@ typedef int Py_ssize_t;
 
             if ( cursor < 0 ) break;
 
-            cursor += (int) substr.size();
+            cursor += static_cast<int>(substr.size());
             nummatches += 1;
         }
 
@@ -978,15 +1029,15 @@ typedef int Py_ssize_t;
         
         cursor = find( s, oldstr, cursor );
 
-        while ( cursor != -1 && cursor <= (int)s.size() )
+        while ( cursor != -1 && cursor <= static_cast<int>(s.size()) )
         {
             if ( count > -1 && sofar >= count )
             {
                 break;
             }
 
-            s.replace( cursor, oldlen, newstr );
-            cursor += (int) newlen;
+            s.replace( static_cast<size_t>(cursor), oldlen, newstr );
+            cursor += static_cast<int>(newlen);
 
             if ( oldlen != 0)
             {
@@ -1346,9 +1397,13 @@ namespace path
         splitdrive_nt(d, p, path);
         
         // set i to index beyond p's last slash
-        int i = (int)p.size();
-        
-        while(i>0 && (p[i-1] != '\\') && (p[i-1] != '/'))
+        int i = static_cast<int>(p.size());
+
+        while(
+                i>0 
+                && (p[static_cast<size_t>(i-1)] != '\\') 
+                && (p[static_cast<size_t>(i-1)] != '/')
+        )
         {
             i = i - 1;
         }
@@ -1381,7 +1436,7 @@ namespace path
         head = pystring::slice(p,0,i);
         tail = pystring::slice(p,i);
         
-        if(!head.empty() && (head != pystring::mul("/", (int) head.size())))
+        if(!head.empty() && (head != pystring::mul("/", static_cast<int>(head.size()))))
         {
             head = pystring::rstrip(head, "/");
         }
@@ -1495,15 +1550,15 @@ namespace path
         
         int i = 0;
         
-        while(i<(int)comps.size())
+        while(i<static_cast<int>(comps.size()))
         {
-            if(comps[i].empty() || comps[i] == ".")
+            if(comps[static_cast<size_t>(i)].empty() || comps[static_cast<size_t>(i)] == ".")
             {
                 comps.erase(comps.begin()+i);
             }
-            else if(comps[i] == "..")
+            else if(comps[static_cast<size_t>(i)] == "..")
             {
-                if(i>0 && comps[i-1] != "..")
+                        if(i>0 && comps[static_cast<size_t>(i-1)] != "..")
                 {
                     comps.erase(comps.begin()+i-1, comps.begin()+i+1);
                     i -= 1;
@@ -1588,51 +1643,6 @@ namespace path
 #else
         return normpath_posix(path);
 #endif
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-
-    // Split the extension from a pathname.
-    // Extension is everything from the last dot to the end, ignoring
-    // leading dots.  Returns "(root, ext)"; ext may be empty.
-    // It is always true that root + ext == p
-
-    void splitext_generic(std::string & root, std::string & ext,
-                          const std::string & p,
-                          const std::string & sep,
-                          const std::string & altsep,
-                          const std::string & extsep)
-    {
-        int sepIndex = pystring::rfind(p, sep);
-        if(!altsep.empty())
-        {
-            int altsepIndex = pystring::rfind(p, altsep);
-            sepIndex = std::max(sepIndex, altsepIndex);
-        }
-
-        int dotIndex = pystring::rfind(p, extsep);
-        if(dotIndex > sepIndex)
-        {
-            // Skip all leading dots
-            int filenameIndex = sepIndex + 1;
-
-            while(filenameIndex < dotIndex)
-            {
-                if(pystring::slice(p,filenameIndex) != extsep)
-                {
-                    root = pystring::slice(p, 0, dotIndex);
-                    ext = pystring::slice(p, dotIndex);
-                    return;
-                }
-
-                filenameIndex += 1;
-            }
-        }
-
-        root = p;
-        ext = "";
     }
 
     void splitext_nt(std::string & root, std::string & ext, const std::string & path)
