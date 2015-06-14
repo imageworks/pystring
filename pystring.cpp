@@ -77,9 +77,9 @@ typedef int Py_ssize_t;
         //////////////////////////////////////////////////////////////////////////////////////////////
         ///
         ///
-        #define LEFTSTRIP 0
-        #define RIGHTSTRIP 1
-        #define BOTHSTRIP 2
+        const static int LEFTSTRIP  = 0;
+        const static int RIGHTSTRIP = 1;
+        const static int BOTHSTRIP  = 2;
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ///
