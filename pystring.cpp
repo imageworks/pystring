@@ -214,7 +214,7 @@ typedef int Py_ssize_t;
             return;
         }
 
-        Py_ssize_t i,j, len = (Py_ssize_t) str.size(), n = (Py_ssize_t) sep.size();
+        Py_ssize_t i,j, len = Py_ssize_t(str.size()), n = Py_ssize_t(sep.size());
 
         i = j = len;
 
@@ -249,7 +249,7 @@ typedef int Py_ssize_t;
     ///
     std::string do_strip( const std::string & str, int striptype, const std::string & chars  )
     {
-        Py_ssize_t len = (Py_ssize_t) str.size(), i, j, charslen = (Py_ssize_t) chars.size();
+        Py_ssize_t len = Py_ssize_t(str.size()), i, j, charslen = Py_ssize_t(chars.size());
 
         if ( charslen == 0 )
         {
