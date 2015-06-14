@@ -33,5 +33,12 @@ def build(bld):
         use="pystring"
     )
 
+    bld(
+        'subst',
+        source='pystring.pc.in',
+        target='pystring.pc',
+        install_path="${PREFIX}/lib/pkgconfig"
+    )
+
     public_headers = ['pystring.h']
     bld.install_files("${PREFIX}/include/pystring", public_headers)
