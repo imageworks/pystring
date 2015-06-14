@@ -1,0 +1,10 @@
+prefix=@PREFIX@
+exec_prefix=${prefix}
+includedir=${prefix}/include
+libdir=${exec_prefix}/lib
+
+Name: pystring
+Description: C++ functions matching the interface and behavior of python string methods with std::string
+Version: 1.1.3
+Cflags: -I${includedir} 
+Libs: -L${libdir} -lpystring
