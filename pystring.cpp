@@ -230,6 +230,51 @@ typedef int Py_ssize_t;
 			reverse_strings( result );
 		}
 
+
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        ///
+        ///
+
+        // Split the extension from a pathname.
+        // Extension is everything from the last dot to the end, ignoring
+        // leading dots.  Returns "(root, ext)"; ext may be empty.
+        // It is always true that root + ext == p
+
+        void splitext_generic(std::string & root, std::string & ext,
+                const std::string & p,
+                const std::string & sep,
+                const std::string & altsep,
+                const std::string & extsep)
+        {
+            int sepIndex = pystring::rfind(p, sep);
+            if(!altsep.empty())
+            {
+                int altsepIndex = pystring::rfind(p, altsep);
+                sepIndex = std::max(sepIndex, altsepIndex);
+            }
+
+            int dotIndex = pystring::rfind(p, extsep);
+            if(dotIndex > sepIndex)
+            {
+                // Skip all leading dots
+                int filenameIndex = sepIndex + 1;
+
+                while(filenameIndex < dotIndex)
+                {
+                    if(pystring::slice(p,filenameIndex) != extsep)
+                    {
+                        root = pystring::slice(p, 0, dotIndex);
+                        ext = pystring::slice(p, dotIndex);
+                        return;
+                    }
+
+                    filenameIndex += 1;
+                }
+            }
+
+            root = p;
+            ext = "";
+        }
 	} //anonymous namespace
 
 
@@ -1588,51 +1633,6 @@ namespace path
 #else
         return normpath_posix(path);
 #endif
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-
-    // Split the extension from a pathname.
-    // Extension is everything from the last dot to the end, ignoring
-    // leading dots.  Returns "(root, ext)"; ext may be empty.
-    // It is always true that root + ext == p
-
-    void splitext_generic(std::string & root, std::string & ext,
-                          const std::string & p,
-                          const std::string & sep,
-                          const std::string & altsep,
-                          const std::string & extsep)
-    {
-        int sepIndex = pystring::rfind(p, sep);
-        if(!altsep.empty())
-        {
-            int altsepIndex = pystring::rfind(p, altsep);
-            sepIndex = std::max(sepIndex, altsepIndex);
-        }
-
-        int dotIndex = pystring::rfind(p, extsep);
-        if(dotIndex > sepIndex)
-        {
-            // Skip all leading dots
-            int filenameIndex = sepIndex + 1;
-
-            while(filenameIndex < dotIndex)
-            {
-                if(pystring::slice(p,filenameIndex) != extsep)
-                {
-                    root = pystring::slice(p, 0, dotIndex);
-                    ext = pystring::slice(p, dotIndex);
-                    return;
-                }
-
-                filenameIndex += 1;
-            }
-        }
-
-        root = p;
-        ext = "";
     }
 
     void splitext_nt(std::string & root, std::string & ext, const std::string & path)
