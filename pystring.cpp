@@ -96,7 +96,7 @@ typedef int Py_ssize_t;
                 i = 0;
                 if ( striptype != RIGHTSTRIP )
                 {
-                    while ( i < len && ::isspace( str[static_cast<unsigned long>(i)] ) )
+                    while ( i < len && ::isspace( str[static_cast<size_t>(i)] ) )
                     {
                         i++;
                     }
@@ -109,7 +109,7 @@ typedef int Py_ssize_t;
                     {
                         j--;
                     }
-                    while (j >= i && ::isspace(str[static_cast<unsigned long>(j)]));
+                    while (j >= i && ::isspace(str[static_cast<size_t>(j)]));
 
                     j++;
                 }
@@ -123,7 +123,7 @@ typedef int Py_ssize_t;
                 i = 0;
                 if ( striptype != RIGHTSTRIP )
                 {
-                    while ( i < len && memchr(sep, str[static_cast<unsigned long>(i)], charslen) )
+                    while ( i < len && memchr(sep, str[static_cast<size_t>(i)], charslen) )
                     {
                         i++;
                     }
@@ -136,7 +136,7 @@ typedef int Py_ssize_t;
                     {
                         j--;
                     }
-                    while (j >= i &&  memchr(sep, str[static_cast<unsigned long>(j)], charslen)  );
+                    while (j >= i &&  memchr(sep, str[static_cast<size_t>(j)], charslen)  );
                     j++;
                 }
 
@@ -149,7 +149,7 @@ typedef int Py_ssize_t;
             }
             else
             {
-                return str.substr( static_cast<unsigned long>(i), static_cast<unsigned long>(j - i) );
+                return str.substr( static_cast<size_t>(i), static_cast<size_t>(j - i) );
             }
 
         }
