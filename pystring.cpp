@@ -74,6 +74,82 @@ typedef int Py_ssize_t;
 
 
 	namespace {
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        ///
+        ///
+        #define LEFTSTRIP 0
+        #define RIGHTSTRIP 1
+        #define BOTHSTRIP 2
+
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        ///
+        ///
+        std::string do_strip( const std::string & str, int striptype, const std::string & chars  )
+        {
+            Py_ssize_t len = Py_ssize_t(str.size()), i, j, charslen = Py_ssize_t(chars.size());
+
+            if ( charslen == 0 )
+            {
+                i = 0;
+                if ( striptype != RIGHTSTRIP )
+                {
+                    while ( i < len && ::isspace( str[i] ) )
+                    {
+                        i++;
+                    }
+                }
+
+                j = len;
+                if ( striptype != LEFTSTRIP )
+                {
+                    do
+                    {
+                        j--;
+                    }
+                    while (j >= i && ::isspace(str[j]));
+
+                    j++;
+                }
+
+
+            }
+            else
+            {
+                const char * sep = chars.c_str();
+
+                i = 0;
+                if ( striptype != RIGHTSTRIP )
+                {
+                    while ( i < len && memchr(sep, str[i], charslen) )
+                    {
+                        i++;
+                    }
+                }
+
+                j = len;
+                if (striptype != LEFTSTRIP)
+                {
+                    do
+                    {
+                        j--;
+                    }
+                    while (j >= i &&  memchr(sep, str[j], charslen)  );
+                    j++;
+                }
+
+
+            }
+
+            if ( i == 0 && j == len )
+            {
+                return str;
+            }
+            else
+            {
+                return str.substr( i, j - i );
+            }
+
+        }
 
 		//////////////////////////////////////////////////////////////////////////////////////////////
 		/// why doesn't the std::reverse work?
@@ -237,82 +313,6 @@ typedef int Py_ssize_t;
         reverse_strings( result );
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    #define LEFTSTRIP 0
-    #define RIGHTSTRIP 1
-    #define BOTHSTRIP 2
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string do_strip( const std::string & str, int striptype, const std::string & chars  )
-    {
-        Py_ssize_t len = Py_ssize_t(str.size()), i, j, charslen = Py_ssize_t(chars.size());
-
-        if ( charslen == 0 )
-        {
-            i = 0;
-            if ( striptype != RIGHTSTRIP )
-            {
-                while ( i < len && ::isspace( str[i] ) )
-                {
-                    i++;
-                }
-            }
-
-            j = len;
-            if ( striptype != LEFTSTRIP )
-            {
-                do
-                {
-                    j--;
-                }
-                while (j >= i && ::isspace(str[j]));
-
-                j++;
-            }
-
-
-        }
-        else
-        {
-            const char * sep = chars.c_str();
-
-            i = 0;
-            if ( striptype != RIGHTSTRIP )
-            {
-                while ( i < len && memchr(sep, str[i], charslen) )
-                {
-                    i++;
-                }
-            }
-
-            j = len;
-            if (striptype != LEFTSTRIP)
-            {
-                do
-                {
-                    j--;
-                }
-                while (j >= i &&  memchr(sep, str[j], charslen)  );
-                j++;
-            }
-
-
-        }
-
-        if ( i == 0 && j == len )
-        {
-            return str;
-        }
-        else
-        {
-            return str.substr( i, j - i );
-        }
-
-    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     ///
