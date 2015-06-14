@@ -32,3 +32,6 @@ def build(bld):
         target="unittest",
         use="pystring"
     )
+
+    public_headers = ['pystring.h']
+    bld.install_files("${PREFIX}/include/pystring", public_headers)
