@@ -55,176 +55,163 @@ namespace pystring
 // But in the meantime, the use of int assures maximum arch compatibility.
 // This must also equal the size used in the end = MAX_32BIT_INT default arg.
 
-typedef int Py_ssize_t;
+typedef std::ptrdiff_t Py_ssize_t;
 
 /* helper macro to fixup start/end slice values */
-#define ADJUST_INDICES(start, end, len)         \
+#define ADJUST_INDICES(start, end, len)     \
     if (end > len)                          \
         end = len;                          \
     else if (end < 0) {                     \
         end += len;                         \
         if (end < 0)                        \
-        end = 0;                        \
+        end = 0;                            \
     }                                       \
     if (start < 0) {                        \
         start += len;                       \
         if (start < 0)                      \
-        start = 0;                      \
+        start = 0;                          \
     }
 
 
-	namespace {
+    namespace {
 
-		//////////////////////////////////////////////////////////////////////////////////////////////
-		/// why doesn't the std::reverse work?
-		///
-		void reverse_strings( std::vector< std::string > & result)
-		{
-			for (std::vector< std::string >::size_type i = 0; i < result.size() / 2; i++ )
-			{
-				std::swap(result[i], result[result.size() - 1 - i]);
-			}
-		}
-
-		//////////////////////////////////////////////////////////////////////////////////////////////
-		///
-		///
-		void split_whitespace( const std::string & str, std::vector< std::string > & result, int maxsplit )
-		{
-			std::string::size_type i, j, len = str.size();
-			for (i = j = 0; i < len; )
-			{
-
-				while ( i < len && ::isspace( str[i] ) ) i++;
-				j = i;
-
-				while ( i < len && ! ::isspace( str[i]) ) i++;
-
-
-
-				if (j < i)
-				{
-					if ( maxsplit-- <= 0 ) break;
-
-					result.push_back( str.substr( j, i - j ));
-
-					while ( i < len && ::isspace( str[i])) i++;
-					j = i;
-				}
-			}
-			if (j < len)
-			{
-				result.push_back( str.substr( j, len - j ));
-			}
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////////////////////////
-		///
-		///
-		void rsplit_whitespace( const std::string & str, std::vector< std::string > & result, int maxsplit )
-		{
-			std::string::size_type len = str.size();
-			std::string::size_type i, j;
-			for (i = j = len; i > 0; )
-			{
-
-				while ( i > 0 && ::isspace( str[i - 1] ) ) i--;
-				j = i;
-
-				while ( i > 0 && ! ::isspace( str[i - 1]) ) i--;
-
-
-
-				if (j > i)
-				{
-					if ( maxsplit-- <= 0 ) break;
-
-					result.push_back( str.substr( i, j - i ));
-
-					while ( i > 0 && ::isspace( str[i - 1])) i--;
-					j = i;
-				}
-			}
-			if (j > 0)
-			{
-				result.push_back( str.substr( 0, j ));
-			}
-			//std::reverse( result, result.begin(), result.end() );
-			reverse_strings( result );
-		}
-
-	} //anonymous namespace
-
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    void split( const std::string & str, std::vector< std::string > & result, const std::string & sep, int maxsplit )
-    {
-        result.clear();
-
-        if ( maxsplit < 0 ) maxsplit = MAX_32BIT_INT;//result.max_size();
-
-
-        if ( sep.size() == 0 )
+        template <class S = std::string>
+        void split_whitespace(const S& str, std::vector<S>& result, std::ptrdiff_t maxsplit)
         {
-            split_whitespace( str, result, maxsplit );
-            return;
+            typename S::size_type i, j, len = str.size();
+            std::cout << len << std::endl;
+            for (i = j = 0; i < len;) {
+                while (i < len && ::isspace(str[i]))
+                {
+                    std::cout << "GO ";
+                    i++;
+                }
+
+                j = i;
+
+                while (i < len && !::isspace(str[i]))
+                {
+                    i++;
+                }
+
+                if (j < i) {
+                    if (maxsplit-- <= 0)
+                    {
+                        break;
+                    }
+
+                    result.push_back(str.substr(j, i - j));
+
+                    while (i < len && ::isspace(str[i])) {
+                        i++;
+                    }
+                    j = i;
+                }
+            }
+            if (j < len) {
+                result.push_back(str.substr(j, len - j));
+            }
         }
 
-        std::string::size_type i,j, len = str.size(), n = sep.size();
+        template <class S = std::string>
+        void rsplit_whitespace(const S& str, std::vector<S>& result, std::ptrdiff_t maxsplit)
+        {
+            typename S::size_type len = str.size();
+            typename S::size_type i, j;
+            for (i = j = len; i > 0;) {
+                while (i > 0 && ::isspace(str[i - 1]))
+                    i--;
+                j = i;
+
+                while (i > 0 && !::isspace(str[i - 1]))
+                    i--;
+
+                if (j > i) {
+                    if (maxsplit-- <= 0)
+                        break;
+
+                    result.push_back(str.substr(i, j - i));
+
+                    while (i > 0 && ::isspace(str[i - 1]))
+                        i--;
+                    j = i;
+                }
+            }
+            if (j > 0) {
+                result.push_back(str.substr(0, j));
+            }
+
+            std::reverse(result, result.begin(), result.end());
+        }
+    } // namespace
+
+    template <class S = std::string>
+    std::vector<S> split(const S& str, const S& sep = S(""), std::ptrdiff_t maxsplit = -1)
+    {
+        std::vector<S> result;
+
+        if (maxsplit < 0)
+            maxsplit = std::numeric_limits<std::ptrdiff_t>::max(); // result.max_size();
+
+        if (sep.size() == 0)
+        {
+            split_whitespace(str, result, maxsplit);
+            return result;
+        }
+
+        typename S::size_type i, j, len = str.size(), n = sep.size();
 
         i = j = 0;
 
-        while ( i+n <= len )
-        {
-            if ( str[i] == sep[0] && str.substr( i, n ) == sep )
-            {
-                if ( maxsplit-- <= 0 ) break;
+        while (i + n <= len) {
+            if (str[i] == sep[0] && str.substr(i, n) == sep) {
+                if (maxsplit-- <= 0)
+                    break;
 
-                result.push_back( str.substr( j, i - j ) );
+                result.push_back(str.substr(j, i - j));
                 i = j = i + n;
-            }
-            else
-            {
+            } else {
                 i++;
             }
         }
 
-        result.push_back( str.substr( j, len-j ) );
+        result.push_back(str.substr(j, len - j));
+        return result;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    void rsplit( const std::string & str, std::vector< std::string > & result, const std::string & sep, int maxsplit )
+    template <class S = std::string>
+    std::vector<S> rsplit(const S& str, const S& sep, std::ptrdiff_t maxsplit)
     {
-        if ( maxsplit < 0 )
+        std::vector<S> result;
+        if (maxsplit < 0)
         {
-            split( str, result, sep, maxsplit );
-            return;
+            split(str, result, sep, maxsplit);
+            return result;
         }
 
         result.clear();
 
-        if ( sep.size() == 0 )
+        if (sep.size() == 0)
         {
-            rsplit_whitespace( str, result, maxsplit );
-            return;
+            rsplit_whitespace(str, result, maxsplit);
+            return result;
         }
 
-        Py_ssize_t i,j, len = (Py_ssize_t) str.size(), n = (Py_ssize_t) sep.size();
+        std::ptrdiff_t i, j, len = static_cast<std::ptrdiff_t>(str.size()),
+                             n = static_cast<std::ptrdiff_t>(sep.size());
 
         i = j = len;
 
-        while ( i >= n )
+        while (i >= n)
         {
-            if ( str[i - 1] == sep[n - 1] && str.substr( i - n, n ) == sep )
+            if (str[i - 1] == sep[n - 1] && str.substr(i - n, n) == sep)
             {
-                if ( maxsplit-- <= 0 ) break;
+                if (maxsplit-- <= 0)
+                {
+                    break;
+                }
 
-                result.push_back( str.substr( i, j - i ) );
+                result.push_back(str.substr(i, j - i));
                 i = j = i - n;
             }
             else
@@ -233,39 +220,37 @@ typedef int Py_ssize_t;
             }
         }
 
-        result.push_back( str.substr( 0, j ) );
-        reverse_strings( result );
+        result.push_back(str.substr(0, j));
+        reverse_strings(result);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    #define LEFTSTRIP 0
-    #define RIGHTSTRIP 1
-    #define BOTHSTRIP 2
+    enum strip_dir { 
+        left,
+        right,
+        both
+    };
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string do_strip( const std::string & str, int striptype, const std::string & chars  )
+    template <class S = std::string>
+    S do_strip(const S& str, strip_dir striptype, const S& chars)
     {
-        Py_ssize_t len = (Py_ssize_t) str.size(), i, j, charslen = (Py_ssize_t) chars.size();
+        std::ptrdiff_t len = static_cast<std::ptrdiff_t>(str.size()), i, j,
+                       charslen = static_cast<std::ptrdiff_t>(chars.size());
 
-        if ( charslen == 0 )
+        if (charslen == 0)
         {
             i = 0;
-            if ( striptype != RIGHTSTRIP )
+            if (striptype != strip_dir::right)
             {
-                while ( i < len && ::isspace( str[i] ) )
+                while (i < len && ::isspace(str[i]))
                 {
                     i++;
                 }
             }
 
             j = len;
-            if ( striptype != LEFTSTRIP )
+            if (striptype != strip_dir::left)
             {
-                do
+                do 
                 {
                     j--;
                 }
@@ -274,318 +259,281 @@ typedef int Py_ssize_t;
                 j++;
             }
 
-
         }
         else
         {
-            const char * sep = chars.c_str();
+            const char* sep = chars.c_str();
 
             i = 0;
-            if ( striptype != RIGHTSTRIP )
+            if (striptype != strip_dir::right)
             {
-                while ( i < len && memchr(sep, str[i], charslen) )
+                while (i < len && memchr(sep, str[i], charslen))
                 {
                     i++;
                 }
             }
 
             j = len;
-            if (striptype != LEFTSTRIP)
+            if (striptype != strip_dir::left)
             {
                 do
                 {
                     j--;
                 }
-                while (j >= i &&  memchr(sep, str[j], charslen)  );
+                while (j >= i && memchr(sep, str[j], charslen));
                 j++;
             }
-
-
         }
 
-        if ( i == 0 && j == len )
+        if (i == 0 && j == len)
         {
             return str;
         }
         else
         {
-            return str.substr( i, j - i );
+            return str.substr(i, j - i);
         }
-
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    void partition( const std::string & str, const std::string & sep, std::vector< std::string > & result )
+    template <class S = std::string>
+    std::vector<S> partition(const S& str, const S& sep)
     {
-        result.resize(3);
-        int index = find( str, sep );
-        if ( index < 0 )
-        {
+        std::vector<S> result(3);
+        int index = find(str, sep);
+        if (index < 0) {
             result[0] = str;
             result[1] = "";
             result[2] = "";
-        }
-        else
-        {
-            result[0] = str.substr( 0, index );
+        } else {
+            result[0] = str.substr(0, index);
             result[1] = sep;
-            result[2] = str.substr( index + sep.size(), str.size() );
+            result[2] = str.substr(index + sep.size(), str.size());
         }
+        return result;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    void rpartition( const std::string & str, const std::string & sep, std::vector< std::string > & result )
+    template <class S = std::string>
+    void rpartition(const S& str, const S& sep)
     {
-        result.resize(3);
-        int index = rfind( str, sep );
-        if ( index < 0 )
-        {
+        std::vector<S> result(3);
+        int index = rfind(str, sep);
+        if (index < 0) {
             result[0] = "";
             result[1] = "";
             result[2] = str;
-        }
-        else
-        {
-            result[0] = str.substr( 0, index );
+        } else {
+            result[0] = str.substr(0, index);
             result[1] = sep;
-            result[2] = str.substr( index + sep.size(), str.size() );
+            result[2] = str.substr(index + sep.size(), str.size());
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string strip( const std::string & str, const std::string & chars )
+    template <class S = std::string>
+    S strip(const S& str, const S& chars)
     {
-        return do_strip( str, BOTHSTRIP, chars );
+        return do_strip(str, strip_dir::both, chars);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string lstrip( const std::string & str, const std::string & chars )
+    template <class S = std::string>
+    S lstrip(const S& str, const S& chars)
     {
-        return do_strip( str, LEFTSTRIP, chars );
+        return do_strip(str, strip_dir::left, chars);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string rstrip( const std::string & str, const std::string & chars )
+    template <class S = std::string>
+    S rstrip(const S& str, const S& chars)
     {
-        return do_strip( str, RIGHTSTRIP, chars );
+        return do_strip(str, strip_dir::right, chars);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string join( const std::string & str, const std::vector< std::string > & seq )
+    template <class S = std::string>
+    S join(const S& str, const std::vector<S>& seq)
     {
-        std::vector< std::string >::size_type seqlen = seq.size(), i;
+        typename std::vector<S>::size_type seqlen = seq.size(), i;
 
-        if ( seqlen == 0 ) return "";
-        if ( seqlen == 1 ) return seq[0];
+        if (seqlen == 0)
+            return "";
+        if (seqlen == 1)
+            return seq[0];
 
-        std::string result( seq[0] );
+        S result(seq[0]);
 
-        for ( i = 1; i < seqlen; ++i )
-        {
+        for (i = 1; i < seqlen; ++i) {
             result += str + seq[i];
-
         }
-
 
         return result;
     }
 
+    namespace {
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    
-    namespace
-    {
-        /* Matches the end (direction >= 0) or start (direction < 0) of self
+        /******************************************************************** 
+         * Matches the end (direction >= 0) or start (direction < 0) of self
          * against substr, using the start and end arguments. Returns
          * -1 on error, 0 if not found and 1 if found.
-         */
-        
-        int _string_tailmatch(const std::string & self, const std::string & substr,
-                              Py_ssize_t start, Py_ssize_t end,
-                              int direction)
+         ********************************************************************/
+        template <class S = std::string>
+        int _string_tailmatch(const S& self,
+            const S& substr,
+            std::ptrdiff_t start,
+            std::ptrdiff_t end,
+            int direction)
         {
-            Py_ssize_t len = (Py_ssize_t) self.size();
-            Py_ssize_t slen = (Py_ssize_t) substr.size();
-            
+            std::ptrdiff_t len = (std::ptrdiff_t)self.size();
+            std::ptrdiff_t slen = (std::ptrdiff_t)substr.size();
+
             const char* sub = substr.c_str();
             const char* str = self.c_str();
-            
+
             ADJUST_INDICES(start, end, len);
-            
+
             if (direction < 0) {
                 // startswith
-                if (start+slen > len)
+                if (start + slen > len)
                     return 0;
             } else {
                 // endswith
-                if (end-start < slen || start > len)
+                if (end - start < slen || start > len)
                     return 0;
-                if (end-slen > start)
+                if (end - slen > start)
                     start = end - slen;
             }
-            if (end-start >= slen)
-                return (!std::memcmp(str+start, sub, slen));
-            
+            if (end - start >= slen)
+                return (!std::memcmp(str + start, sub, slen));
+
             return 0;
         }
-    }
-    
-    bool endswith( const std::string & str, const std::string & suffix, int start, int end )
+    } // namespace
+
+    template <class S = std::string>
+    bool endswith(const S& str, const S& suffix, int start, int end)
     {
-        int result = _string_tailmatch(str, suffix,
-                                       (Py_ssize_t) start, (Py_ssize_t) end, +1);
-        //if (result == -1) // TODO: Error condition
-        
-        return static_cast<bool>(result);
-    }
-    
-    
-    bool startswith( const std::string & str, const std::string & prefix, int start, int end )
-    {
-        int result = _string_tailmatch(str, prefix,
-                                       (Py_ssize_t) start, (Py_ssize_t) end, -1);
-        //if (result == -1) // TODO: Error condition
-        
+        int result = _string_tailmatch(str, suffix, (std::ptrdiff_t)start, (std::ptrdiff_t)end, +1);
+        // if (result == -1) // TODO: Error condition
+
         return static_cast<bool>(result);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-
-    bool isalnum( const std::string & str )
+    template <class S = std::string>
+    bool startswith(const S& str, const S& prefix, int start, int end)
     {
-        std::string::size_type len = str.size(), i;
-        if ( len == 0 ) return false;
+        int result = _string_tailmatch(str, prefix, (std::ptrdiff_t)start, (std::ptrdiff_t)end, -1);
+        // if (result == -1) // TODO: Error condition
 
+        return static_cast<bool>(result);
+    }
 
-        if( len == 1 )
-        {
-            return ::isalnum( str[0] );
+    template <class S = std::string>
+    bool isalnum(const S& str)
+    {
+        typename S::size_type len = str.size(), i;
+        if (len == 0)
+            return false;
+
+        if (len == 1) {
+            return ::isalnum(str[0]);
         }
 
-        for ( i = 0; i < len; ++i )
-        {
-            if ( !::isalnum( str[i] ) ) return false;
+        for (i = 0; i < len; ++i) {
+            if (!::isalnum(str[i]))
+                return false;
         }
         return true;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    bool isalpha( const std::string & str )
+    template <class S = std::string>
+    bool isalpha(const S& str)
     {
-        std::string::size_type len = str.size(), i;
-        if ( len == 0 ) return false;
-        if( len == 1 ) return ::isalpha( (int) str[0] );
+        typename S::size_type len = str.size(), i;
+        if (len == 0)
+            return false;
+        if (len == 1)
+            return ::isalpha((int)str[0]);
 
-        for ( i = 0; i < len; ++i )
-        {
-           if ( !::isalpha( (int) str[i] ) ) return false;
+        for (i = 0; i < len; ++i) {
+            if (!::isalpha((int)str[i]))
+                return false;
         }
         return true;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    bool isdigit( const std::string & str )
+    template <class S = std::string>
+    bool isdigit(const S& str)
     {
-        std::string::size_type len = str.size(), i;
-        if ( len == 0 ) return false;
-        if( len == 1 ) return ::isdigit( str[0] );
+        typename S::size_type len = str.size(), i;
+        if (len == 0)
+            return false;
+        if (len == 1)
+            return ::isdigit(str[0]);
 
-        for ( i = 0; i < len; ++i )
-        {
-           if ( ! ::isdigit( str[i] ) ) return false;
+        for (i = 0; i < len; ++i) {
+            if (!::isdigit(str[i]))
+                return false;
         }
         return true;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    bool islower( const std::string & str )
+    template <class S = std::string>
+    bool islower(const S& str)
     {
-        std::string::size_type len = str.size(), i;
-        if ( len == 0 ) return false;
-        if( len == 1 ) return ::islower( str[0] );
+        typename S::size_type len = str.size(), i;
+        if (len == 0)
+            return false;
+        if (len == 1)
+            return ::islower(str[0]);
 
-        for ( i = 0; i < len; ++i )
-        {
-           if ( !::islower( str[i] ) ) return false;
+        for (i = 0; i < len; ++i) {
+            if (!::islower(str[i]))
+                return false;
         }
         return true;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    bool isspace( const std::string & str )
+    template <class S = std::string>
+    bool isspace(const S& str)
     {
-        std::string::size_type len = str.size(), i;
-        if ( len == 0 ) return false;
-        if( len == 1 ) return ::isspace( str[0] );
+        typename S::size_type len = str.size(), i;
+        if (len == 0)
+            return false;
+        if (len == 1)
+            return ::isspace(str[0]);
 
-        for ( i = 0; i < len; ++i )
-        {
-           if ( !::isspace( str[i] ) ) return false;
+        for (i = 0; i < len; ++i) {
+            if (!::isspace(str[i]))
+                return false;
         }
         return true;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    bool istitle( const std::string & str )
+    template <class S = std::string>
+    bool istitle(const S& str)
     {
-        std::string::size_type len = str.size(), i;
+        typename S::size_type len = str.size(), i;
 
-        if ( len == 0 ) return false;
-        if ( len == 1 ) return ::isupper( str[0] );
+        if (len == 0)
+            return false;
+        if (len == 1)
+            return ::isupper(str[0]);
 
         bool cased = false, previous_is_cased = false;
 
-        for ( i = 0; i < len; ++i )
-        {
-            if ( ::isupper( str[i] ) )
-            {
-                if ( previous_is_cased )
-                {
+        for (i = 0; i < len; ++i) {
+            if (::isupper(str[i])) {
+                if (previous_is_cased) {
                     return false;
                 }
 
                 previous_is_cased = true;
                 cased = true;
-            }
-            else if ( ::islower( str[i] ) )
-            {
-                if (!previous_is_cased)
-                {
+            } else if (::islower(str[i])) {
+                if (!previous_is_cased) {
                     return false;
                 }
 
                 previous_is_cased = true;
                 cased = true;
 
-            }
-            else
-            {
+            } else {
                 previous_is_cased = false;
             }
         }
@@ -593,122 +541,105 @@ typedef int Py_ssize_t;
         return cased;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    bool isupper( const std::string & str )
+    template <class S = std::string>
+    bool isupper(const S& str)
     {
-        std::string::size_type len = str.size(), i;
-        if ( len == 0 ) return false;
-        if( len == 1 ) return ::isupper( str[0] );
+        typename S::size_type len = str.size(), i;
+        if (len == 0)
+            return false;
+        if (len == 1)
+            return ::isupper(str[0]);
 
-        for ( i = 0; i < len; ++i )
-        {
-           if ( !::isupper( str[i] ) ) return false;
+        for (i = 0; i < len; ++i) {
+            if (!::isupper(str[i]))
+                return false;
         }
         return true;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string capitalize( const std::string & str )
+    template <class S = std::string>
+    S capitalize(const S& str)
     {
-        std::string s( str );
-        std::string::size_type len = s.size(), i;
+        S s(str);
+        typename S::size_type len = s.size(), i;
 
-        if ( len > 0)
-        {
-            if (::islower(s[0])) s[0] = (char) ::toupper( s[0] );
+        if (len > 0) {
+            if (::islower(s[0]))
+                s[0] = (char)::toupper(s[0]);
         }
 
-        for ( i = 1; i < len; ++i )
-        {
-            if (::isupper(s[i])) s[i] = (char) ::tolower( s[i] );
-        }
-
-        return s;
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string lower( const std::string & str )
-    {
-        std::string s( str );
-        std::string::size_type len = s.size(), i;
-
-        for ( i = 0; i < len; ++i )
-        {
-            if ( ::isupper( s[i] ) ) s[i] = (char) ::tolower( s[i] );
+        for (i = 1; i < len; ++i) {
+            if (::isupper(s[i]))
+                s[i] = (char)::tolower(s[i]);
         }
 
         return s;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string upper( const std::string & str )
+    template <class S = std::string>
+    S lower(const S& str)
     {
-        std::string s( str ) ;
-        std::string::size_type len = s.size(), i;
+        S s(str);
+        typename S::size_type len = s.size(), i;
 
-        for ( i = 0; i < len; ++i )
-        {
-            if ( ::islower( s[i] ) ) s[i] = (char) ::toupper( s[i] );
+        for (i = 0; i < len; ++i) {
+            if (::isupper(s[i]))
+                s[i] = (char)::tolower(s[i]);
         }
 
         return s;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string swapcase( const std::string & str )
+    template <class S = std::string>
+    S upper(const S& str)
     {
-        std::string s( str );
-        std::string::size_type len = s.size(), i;
+        S s(str);
+        typename S::size_type len = s.size(), i;
 
-        for ( i = 0; i < len; ++i )
-        {
-            if ( ::islower( s[i] ) ) s[i] = (char) ::toupper( s[i] );
-            else if (::isupper( s[i] ) ) s[i] = (char) ::tolower( s[i] );
+        for (i = 0; i < len; ++i) {
+            if (::islower(s[i]))
+                s[i] = (char)::toupper(s[i]);
         }
 
         return s;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string title( const std::string & str )
+    template <class S = std::string>
+    S swapcase(const S& str)
     {
-        std::string s( str );
-        std::string::size_type len = s.size(), i;
+        S s(str);
+        typename S::size_type len = s.size(), i;
+
+        for (i = 0; i < len; ++i) {
+            if (::islower(s[i]))
+                s[i] = (char)::toupper(s[i]);
+            else if (::isupper(s[i]))
+                s[i] = (char)::tolower(s[i]);
+        }
+
+        return s;
+    }
+
+    template <class S = std::string>
+    S title(const S& str)
+    {
+        S s(str);
+        typename S::size_type len = s.size(), i;
         bool previous_is_cased = false;
 
-        for ( i = 0; i < len; ++i )
-        {
+        for (i = 0; i < len; ++i) {
             int c = s[i];
-            if ( ::islower(c) )
-            {
-                if ( !previous_is_cased )
-                {
-                    s[i] = (char) ::toupper(c);
+            if (::islower(c)) {
+                if (!previous_is_cased) {
+                    s[i] = (char)::toupper(c);
                 }
                 previous_is_cased = true;
-            }
-            else if ( ::isupper(c) )
-            {
-                if ( previous_is_cased )
-                {
-                    s[i] = (char) ::tolower(c);
+            } else if (::isupper(c)) {
+                if (previous_is_cased) {
+                    s[i] = (char)::tolower(c);
                 }
                 previous_is_cased = true;
-            }
-            else
-            {
+            } else {
                 previous_is_cased = false;
             }
         }
@@ -716,223 +647,178 @@ typedef int Py_ssize_t;
         return s;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string translate( const std::string & str, const std::string & table, const std::string & deletechars )
+    template <class S = std::string>
+    S translate(const S& str,
+        const S& table,
+        const S& deletechars)
     {
-        std::string s;
-        std::string::size_type len = str.size(), dellen = deletechars.size();
+        S s;
+        typename S::size_type len = str.size(), dellen = deletechars.size();
 
-        if ( table.size() != 256 )
-        {
+        if (table.size() != 256) {
             // TODO : raise exception instead
             return str;
         }
 
-        //if nothing is deleted, use faster code
-        if ( dellen == 0 )
-        {
+        // if nothing is deleted, use faster code
+        if (dellen == 0) {
             s = str;
-            for ( std::string::size_type i = 0; i < len; ++i )
-            {
-                s[i] = table[ s[i] ];
+            for (typename S::size_type i = 0; i < len; ++i) {
+                s[i] = table[s[i]];
             }
             return s;
         }
 
-
         int trans_table[256];
-        for ( int i = 0; i < 256; i++)
-        {
+        for (int i = 0; i < 256; i++) {
             trans_table[i] = table[i];
         }
 
-        for ( std::string::size_type i = 0; i < dellen; i++)
-        {
-            trans_table[(int) deletechars[i] ] = -1;
+        for (typename S::size_type i = 0; i < dellen; i++) {
+            trans_table[(int)deletechars[i]] = -1;
         }
 
-        for ( std::string::size_type i = 0; i < len; ++i )
-        {
-            if ( trans_table[ (int) str[i] ] != -1 )
-            {
-                s += table[ str[i] ];
+        for (typename S::size_type i = 0; i < len; ++i) {
+            if (trans_table[(int)str[i]] != -1) {
+                s += table[str[i]];
             }
         }
 
         return s;
-
     }
 
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string zfill( const std::string & str, int width )
+    template <class S = std::string>
+    S zfill(const S& str, int width)
     {
         int len = (int)str.size();
 
-        if ( len >= width )
-        {
+        if (len >= width) {
             return str;
         }
 
-        std::string s( str );
+        S s(str);
 
         int fill = width - len;
 
-        s = std::string( fill, '0' ) + s;
+        s = S(fill, '0') + s;
 
-
-        if ( s[fill] == '+' || s[fill] == '-' )
-        {
+        if (s[fill] == '+' || s[fill] == '-') {
             s[0] = s[fill];
             s[fill] = '0';
         }
 
         return s;
-
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string ljust( const std::string & str, int width )
+    template <class S = std::string>
+    S ljust(const S& str, int width)
     {
-        std::string::size_type len = str.size();
-        if ( (( int ) len ) >= width ) return str;
-        return str + std::string( width - len, ' ' );
+        typename S::size_type len = str.size();
+        if (((int)len) >= width)
+            return str;
+        return str + S(width - len, ' ');
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string rjust( const std::string & str, int width )
+    template <class S = std::string>
+    S rjust(const S& str, int width)
     {
-        std::string::size_type len = str.size();
-        if ( (( int ) len ) >= width ) return str;
-        return std::string( width - len, ' ' ) + str;
+        typename S::size_type len = str.size();
+        if (((int)len) >= width)
+            return str;
+        return S(width - len, ' ') + str;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string center( const std::string & str, int width )
+    template <class S = std::string>
+    S center(const S& str, int width)
     {
-        int len = (int) str.size();
+        int len = (int)str.size();
         int marg, left;
 
-        if ( len >= width ) return str;
+        if (len >= width)
+            return str;
 
         marg = width - len;
         left = marg / 2 + (marg & width & 1);
 
-        return std::string( left, ' ' ) + str + std::string( marg - left, ' ' );
-
+        return S(left, ' ') + str + S(marg - left, ' ');
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string slice( const std::string & str, int start, int end )
+    template <class S = std::string>
+    S slice(const S& str, int start, int end)
     {
-        ADJUST_INDICES(start, end, (int) str.size());
-        if ( start >= end ) return "";
-        return str.substr( start, end - start );
+        ADJUST_INDICES(start, end, (int)str.size());
+        if (start >= end)
+            return "";
+        return str.substr(start, end - start);
     }
-    
-    
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    int find( const std::string & str, const std::string & sub, int start, int end  )
+
+    template <class S = std::string>
+    int find(const S& str, const S& sub, int start, int end)
     {
-        ADJUST_INDICES(start, end, (int) str.size());
-        
-        std::string::size_type result = str.find( sub, start );
-        
-        // If we cannot find the string, or if the end-point of our found substring is past
-        // the allowed end limit, return that it can't be found.
-        if( result == std::string::npos || 
-           (result + sub.size() > (std::string::size_type)end) )
-        {
+        ADJUST_INDICES(start, end, (int)str.size());
+
+        typename S::size_type result = str.find(sub, start);
+
+        // If we cannot find the string, or if the end-point of our found substring is
+        // past the allowed end limit, return that it can't be found.
+        if (result == S::npos || (result + sub.size() > (typename S::size_type)end)) {
             return -1;
         }
-        
-        return (int) result;
-    }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    int index( const std::string & str, const std::string & sub, int start, int end  )
-    {
-        return find( str, sub, start, end );
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    int rfind( const std::string & str, const std::string & sub, int start, int end )
-    {
-        ADJUST_INDICES(start, end, (int) str.size());
-        
-        std::string::size_type result = str.rfind( sub, end );
-        
-        if( result == std::string::npos || 
-            result < (std::string::size_type)start  || 
-           (result + sub.size() > (std::string::size_type)end))
-            return -1;
-        
         return (int)result;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    int rindex( const std::string & str, const std::string & sub, int start, int end )
+    template <class S = std::string>
+    int index(const S& str, const S& sub, int start, int end)
     {
-        return rfind( str, sub, start, end );
+        return find(str, sub, start, end);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string expandtabs( const std::string & str, int tabsize )
+    template <class S = std::string>
+    int rfind(const S& str, const S& sub, int start, int end)
     {
-        std::string s( str );
+        ADJUST_INDICES(start, end, (int)str.size());
 
-        std::string::size_type len = str.size(), i = 0;
+        typename S::size_type result = str.rfind(sub, end);
+
+        if (result == S::npos || result < (typename S::size_type)start || (result + sub.size() > (typename S::size_type)end))
+            return -1;
+
+        return (int)result;
+    }
+
+    template <class S = std::string>
+    int rindex(const S& str, const S& sub, int start, int end)
+    {
+        return rfind(str, sub, start, end);
+    }
+
+    template <class S = std::string>
+    S expandtabs(const S& str, int tabsize)
+    {
+        S s(str);
+
+        typename S::size_type len = str.size(), i = 0;
         int offset = 0;
 
         int j = 0;
 
-        for ( i = 0; i < len; ++i )
-        {
-            if ( str[i] == '\t' )
-            {
-
-                if ( tabsize > 0 )
-                {
+        for (i = 0; i < len; ++i) {
+            if (str[i] == '\t') {
+                if (tabsize > 0) {
                     int fillsize = tabsize - (j % tabsize);
                     j += fillsize;
-                    s.replace( i + offset, 1, std::string( fillsize, ' ' ));
+                    s.replace(i + offset, 1, S(fillsize, ' '));
                     offset += fillsize - 1;
-                }
-                else
-                {
-                    s.replace( i + offset, 1, "" );
+                } else {
+                    s.replace(i + offset, 1, "");
                     offset -= 1;
                 }
 
-            }
-            else
-            {
+            } else {
                 j++;
 
-                if (str[i] == '\n' || str[i] == '\r')
-                {
+                if (str[i] == '\n' || str[i] == '\r') {
                     j = 0;
                 }
             }
@@ -941,59 +827,47 @@ typedef int Py_ssize_t;
         return s;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    int count( const std::string & str, const std::string & substr, int start, int end )
+    template <class S = std::string>
+    int count(const S& str, const S& substr, int start, int end)
     {
         int nummatches = 0;
         int cursor = start;
 
-        while ( 1 )
-        {
-            cursor = find( str, substr, cursor, end );
+        while (1) {
+            cursor = find(str, substr, cursor, end);
 
-            if ( cursor < 0 ) break;
+            if (cursor < 0)
+                break;
 
-            cursor += (int) substr.size();
+            cursor += (int)substr.size();
             nummatches += 1;
         }
 
         return nummatches;
-
-
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    
-    std::string replace( const std::string & str, const std::string & oldstr, const std::string & newstr, int count )
+    template <class S = std::string>
+    S replace(const S& str, const S& oldstr, const S& newstr, int count)
     {
         int sofar = 0;
         int cursor = 0;
-        std::string s( str );
+        S s(str);
 
-        std::string::size_type oldlen = oldstr.size(), newlen = newstr.size();
-        
-        cursor = find( s, oldstr, cursor );
+        typename S::size_type oldlen = oldstr.size(), newlen = newstr.size();
 
-        while ( cursor != -1 && cursor <= (int)s.size() )
-        {
-            if ( count > -1 && sofar >= count )
-            {
+        cursor = find(s, oldstr, cursor);
+
+        while (cursor != -1 && cursor <= (int)s.size()) {
+            if (count > -1 && sofar >= count) {
                 break;
             }
 
-            s.replace( cursor, oldlen, newstr );
-            cursor += (int) newlen;
+            s.replace(cursor, oldlen, newstr);
+            cursor += (int)newlen;
 
-            if ( oldlen != 0)
-            {
-                cursor = find( s, oldstr, cursor );
-            }
-            else
-            {
+            if (oldlen != 0) {
+                cursor = find(s, oldstr, cursor);
+            } else {
                 ++cursor;
             }
 
@@ -1001,68 +875,55 @@ typedef int Py_ssize_t;
         }
 
         return s;
-
     }
-    
-    
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    void splitlines(  const std::string & str, std::vector< std::string > & result, bool keepends )
-    {
-        result.clear();
-        std::string::size_type len = str.size(), i, j, eol;
 
-         for (i = j = 0; i < len; )
-         {
-            while (i < len && str[i] != '\n' && str[i] != '\r') i++;
+    template <class S = std::string>
+    std::vector<S> splitlines(const S& str, bool keepends)
+    {
+        std::vector<S> result;
+        typename S::size_type len = str.size(), i, j, eol;
+
+        for (i = j = 0; i < len;) {
+            while (i < len && str[i] != '\n' && str[i] != '\r')
+                i++;
 
             eol = i;
-            if (i < len)
-            {
-                if (str[i] == '\r' && i + 1 < len && str[i+1] == '\n')
-                {
+            if (i < len) {
+                if (str[i] == '\r' && i + 1 < len && str[i + 1] == '\n') {
                     i += 2;
-                }
-                else
-                {
+                } else {
                     i++;
                 }
                 if (keepends)
-                eol = i;
-
+                    eol = i;
             }
 
-            result.push_back( str.substr( j, eol - j ) );
+            result.push_back(str.substr(j, eol - j));
             j = i;
-
         }
 
-        if (j < len)
-        {
-            result.push_back( str.substr( j, len - j ) );
+        if (j < len) {
+            result.push_back(str.substr(j, len - j));
         }
 
+        return result;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ///
-    ///
-    std::string mul( const std::string & str, int n )
+    template <class S = std::string>
+    S mul(const S& str, int n)
     {
         // Early exits
-        if (n <= 0) return "";
-        if (n == 1) return str;
-        
+        if (n <= 0)
+            return "";
+        if (n == 1)
+            return str;
+
         std::ostringstream os;
-        for(int i=0; i<n; ++i)
-        {
+        for (int i = 0; i < n; ++i) {
             os << str;
         }
         return os.str();
     }
-
-
 
 namespace os
 {
