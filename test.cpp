@@ -513,10 +513,15 @@ PYSTRING_ADD_TEST(pystring, translate)
 
 PYSTRING_ADD_TEST(pystring, abspath)
 {
-    PYSTRING_CHECK_EQUAL(pystring::os::path::abspath("", "/net"), "/net");
-    PYSTRING_CHECK_EQUAL(pystring::os::path::abspath("../jeremys", "/net/soft_scratch/users/stevel"), "/net/soft_scratch/users/jeremys");
-    PYSTRING_CHECK_EQUAL(pystring::os::path::abspath("../../../../tmp/a", "/net/soft_scratch/users/stevel"), "/tmp/a");
+    PYSTRING_CHECK_EQUAL(pystring::os::path::abspath_posix("", "/net"), "/net");
+    PYSTRING_CHECK_EQUAL(pystring::os::path::abspath_posix("../jeremys", "/net/soft_scratch/users/stevel"), "/net/soft_scratch/users/jeremys");
+    PYSTRING_CHECK_EQUAL(pystring::os::path::abspath_posix("../../../../tmp/a", "/net/soft_scratch/users/stevel"), "/tmp/a");
  
+     PYSTRING_CHECK_EQUAL(pystring::os::path::abspath_nt("", "c:\\net"), "c:\\net");
+    PYSTRING_CHECK_EQUAL(pystring::os::path::abspath_nt("..\\jeremys", "c:\\net\\soft_scratch\\users\\stevel"), "c:\\net\\soft_scratch\\users\\jeremys");
+    PYSTRING_CHECK_EQUAL(pystring::os::path::abspath_nt("..\\..\\..\\..\\tmp\\a", "c:\\net\\soft_scratch\\users\\stevel"), "c:\\tmp\\a");
+  
+
 }
 
 PYSTRING_ADD_TEST(pystring_os_path, splitdrive)
@@ -629,6 +634,7 @@ PYSTRING_ADD_TEST(pystring_os_path, split)
     split_nt(head, tail, "c:\\a");  PYSTRING_CHECK_EQUAL(head, "c:\\" );  PYSTRING_CHECK_EQUAL(tail, "a" );
     split_nt(head, tail, "c:\\a\\b");  PYSTRING_CHECK_EQUAL(head, "c:\\a" );  PYSTRING_CHECK_EQUAL(tail, "b" );
     split_nt(head, tail, "c:\\a\\b\\");  PYSTRING_CHECK_EQUAL(head, "c:\\a\\b" );  PYSTRING_CHECK_EQUAL(tail, "" );
+    split_nt(head, tail, "D:\\dir\\");  PYSTRING_CHECK_EQUAL(head, "D:\\dir" );  PYSTRING_CHECK_EQUAL(tail, "" );
 }
 
 PYSTRING_ADD_TEST(pystring_os_path, splitext)
