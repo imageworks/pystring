@@ -1347,7 +1347,8 @@ namespace path
         
         // set i to index beyond p's last slash
         int i = (int)p.size();
-        
+
+        // walk back to find the index of the first slash from the end       
         while(i>0 && (p[i-1] != '\\') && (p[i-1] != '/'))
         {
             i = i - 1;
@@ -1361,7 +1362,7 @@ namespace path
         while(!head2.empty() && ((pystring::slice(head2,-1) == "/") ||
                                  (pystring::slice(head2,-1) == "\\")))
         {
-            head2 = pystring::slice(head,0,-1);
+            head2 = pystring::slice(head2,0,-1);
         }
         
         if(!head2.empty()) head = head2;
