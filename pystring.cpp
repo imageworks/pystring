@@ -1089,7 +1089,7 @@ namespace path
     void splitdrive_nt(std::string & drivespec, std::string & pathspec,
                        const std::string & p)
     {
-        if(pystring::slice(p, 1, 2) == colon)
+        if (p.size() >= 2 && p[1] == ':')
         {
             std::string path = p; // In case drivespec == p
             drivespec = pystring::slice(path, 0, 2);
@@ -1209,8 +1209,8 @@ namespace path
                 //     4. join('c:', 'd:/') = 'd:/'
                 //     5. join('c:/', 'd:/') = 'd:/'
                 
-                if( (pystring::slice(path, 1, 2) != colon) ||
-                    (pystring::slice(b, 1, 2) == colon) )
+
+                if ((path.size() >= 2 && path[1] != ':') || (b.size() >= 2 && b[1] == ':'))
                 {
                     // Path doesnt start with a drive letter
                     b_nts = true;
