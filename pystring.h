@@ -178,6 +178,12 @@ namespace pystring
     /// not found, the original string will be returned with two empty strings.
     ///
     void partition( const std::string & str, const std::string & sep, std::vector< std::string > & result );
+    inline std::vector< std::string > partition( const std::string & str, const std::string & sep )
+    {
+        std::vector< std::string > result;
+        partition( str, sep, result );
+        return result;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     /// @brief Return a copy of the string with all occurrences of substring old replaced by new. If
@@ -211,6 +217,12 @@ namespace pystring
     /// not found, the original string will be returned with two empty strings.
     ///
     void rpartition( const std::string & str, const std::string & sep, std::vector< std::string > & result );
+    inline std::vector< std::string > rpartition ( const std::string & str, const std::string & sep )
+    {
+        std::vector< std::string > result;
+        rpartition( str, sep, result );
+        return result;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     /// @brief Return a copy of the string with trailing characters removed. If chars is "", whitespace
@@ -225,6 +237,12 @@ namespace pystring
     /// any whitespace string is a separator.
     ///
     void split( const std::string & str, std::vector< std::string > & result, const std::string & sep = "", int maxsplit = -1);
+    inline std::vector< std::string > split( const std::string & str, const std::string & sep = "", int maxsplit = -1)
+    {
+        std::vector< std::string >  result;
+        split( str, result, sep, maxsplit );
+        return result;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     /// @brief Fills the "result" list with the words in the string, using sep as the delimiter string.
@@ -234,12 +252,24 @@ namespace pystring
     /// any whitespace string is a separator.
     ///
     void rsplit( const std::string & str, std::vector< std::string > & result, const std::string & sep = "", int maxsplit = -1);
+    inline std::vector< std::string > rsplit( const std::string & str, const std::string & sep = "", int maxsplit = -1)
+    {
+        std::vector< std::string > result;
+        rsplit( str, result, sep, maxsplit);
+        return result;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     /// @brief Return a list of the lines in the string, breaking at line boundaries. Line breaks
     /// are not included in the resulting list unless keepends is given and true.
     ///
     void splitlines(  const std::string & str, std::vector< std::string > & result, bool keepends = false );
+    inline std::vector< std::string > splitlines(  const std::string & str, bool keepends = false )
+    {
+        std::vector< std::string > result;
+        splitlines( str, result, keepends);
+        return result;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     /// @brief Return True if string starts with the prefix, otherwise return False. With optional start,
