@@ -1,7 +1,7 @@
-LIBTOOL = libtool
-LIBDIR = /usr/lib
-CXX = g++
-CXXFLAGS = -g -O3 -Wall -Wextra -Wshadow -Wconversion -Wcast-qual -Wformat=2
+LIBTOOL ?= libtool
+LIBDIR ?= /usr/lib
+CXX ?= g++
+CXXFLAGS ?= -g -O3 -Wall -Wextra -Wshadow -Wconversion -Wcast-qual -Wformat=2
 
 all: libpystring.la
 
