@@ -1071,6 +1071,31 @@ const std::string colon = ":";
         return os.str();
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    ///
+    ///
+    std::string removeprefix( const std::string & str, const std::string & prefix )
+    {
+        if (pystring::startswith(str, prefix))
+        {
+            return str.substr(prefix.length());
+        }
+
+        return str;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    ///
+    ///
+    std::string removesuffix( const std::string & str, const std::string & suffix )
+    {
+        if (pystring::endswith(str, suffix))
+        {
+            return str.substr(0, str.length() - suffix.length());
+        }
+
+        return str;
+    }
 
 
 namespace os

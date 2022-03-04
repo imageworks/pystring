@@ -180,6 +180,18 @@ namespace pystring
     void partition( const std::string & str, const std::string & sep, std::vector< std::string > & result );
 
     //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief If str starts with prefix return a copy of the string with prefix at the start
+    /// removed otherwise return an unmodified copy of the string.
+    ///
+    std::string removeprefix( const std::string & str, const std::string & prefix );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    /// @brief If str ends with suffix return a copy of the string with suffix at the end removed
+    /// otherwise return an unmodified copy of the string.
+    ///
+    std::string removesuffix( const std::string & str, const std::string & suffix );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
     /// @brief Return a copy of the string with all occurrences of substring old replaced by new. If
     /// the optional argument count is given, only the first count occurrences are replaced.
     ///
