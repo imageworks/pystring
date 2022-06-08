@@ -1,3 +1,7 @@
+// Copyright Contributors to the Pystring project.
+// SPDX-License-Identifier: BSD-3-Clause
+// https://github.com/imageworks/pystring/blob/master/LICENSE
+
 #include <iostream>
 
 #include "pystring.h"
