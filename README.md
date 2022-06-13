@@ -1,3 +1,5 @@
+[![Repology](https://img.shields.io/repology/repositories/pystring)](https://repology.org/project/pystring/versions)
+
 Pystring is a collection of C++ functions which match the interface and
 behavior of python's string class methods using std::string. Implemented in
 C++, it does not require or make use of a python interpreter. It provides
