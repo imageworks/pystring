@@ -455,6 +455,7 @@ jobs:
           mkdir _build
         shell: bash
       - name: Configure
+      # the windows build needs the -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS to work
         run: |
           cmake ../. \
                 -DCMAKE_INSTALL_PREFIX=../_install \
