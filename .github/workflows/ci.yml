@@ -475,6 +475,6 @@ jobs:
         working-directory: _build
       - name: Test
         run: |
-          ctest -C Release
+          ctest -C  ${{ matrix.build-type }}
         shell: bash
         working-directory: _build
