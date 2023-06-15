@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 project(pystring CXX)
 
-set(BUILD_SHARED_LIBS YES)
+option(BUILD_SHARED_LIBS "Choose to build shared or static libraries" YES)
 
 add_library(pystring
     pystring.cpp
@@ -19,4 +19,6 @@ include(GNUInstallDirs)
 install(TARGETS pystring
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
+set_target_properties(pystring PROPERTIES PUBLIC_HEADER pystring.h)
+install(TARGETS pystring PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/pystring")
 
