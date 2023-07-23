@@ -98,6 +98,18 @@ PYSTRING_ADD_TEST(pystring, rfind)
     PYSTRING_CHECK_EQUAL(pystring::rfind("abcabcabc", "abc", 6, 8), -1);
 }
 
+PYSTRING_ADD_TEST(pystring, removeprefix)
+{
+    PYSTRING_CHECK_EQUAL(pystring::removeprefix("abcdef", "abc"), "def");
+    PYSTRING_CHECK_EQUAL(pystring::removeprefix("abcdef", "bcd"), "abcdef");
+}
+
+PYSTRING_ADD_TEST(pystring, removesuffix)
+{
+    PYSTRING_CHECK_EQUAL(pystring::removesuffix("abcdef", "def"), "abc");
+    PYSTRING_CHECK_EQUAL(pystring::removesuffix("abcdef", "cde"), "abcdef");
+}
+
 PYSTRING_ADD_TEST(pystring, replace)
 {
     PYSTRING_CHECK_EQUAL(pystring::replace("abcdef", "foo", "bar"), "abcdef");
