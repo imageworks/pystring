@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.5)
 project(pystring CXX)
 
 option (BUILD_SHARED_LIBS "Build shared libraries (set to OFF to build static libs)" ON)
