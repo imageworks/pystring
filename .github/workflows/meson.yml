@@ -42,7 +42,7 @@ jobs:
 
           - name: clang+sanitize
             args: >-
-              "-Db_sanitize=address,undefined"
+              -Db_lundef=false "-Db_sanitize=address,undefined"
             extra_envs:
               CC: clang
               CXX: clang++
@@ -130,7 +130,7 @@ jobs:
         if: ${{ matrix.platform != 'windows-2022' }}
         env: ${{ matrix.mode.extra_envs }}
         run: |
-          meson setup build-${{ matrix.flavor }} --buildtype=${{ matrix.flavor }} -Db_lundef=false ${{ matrix.mode.args }}
+          meson setup build-${{ matrix.flavor }} --buildtype=${{ matrix.flavor }} ${{ matrix.mode.args }}
       - name: Building
         run: |
           meson compile -C build-${{ matrix.flavor }}
