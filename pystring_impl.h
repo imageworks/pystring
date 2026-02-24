@@ -504,11 +504,18 @@ const std::string colon = ":";
         if ( len == 0 ) return false;
         if( len == 1 ) return ::islower( str[0] );
 
-        for ( i = 0; i < len; ++i )
-        {
-           if ( !::islower( str[i] ) ) return false;
+        // python's islower is a lot more leniant than c++
+        // this will match the python behavior so that something like
+        // islower("hello123") is true
+
+        bool has_cased = false;
+        for (i = 0; i < len; ++i) {
+            if (::islower(str[i]))
+                has_cased = true;
+            else if (::isupper(str[i]))
+                return false;
         }
-        return true;
+        return has_cased;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -580,11 +587,18 @@ const std::string colon = ":";
         if ( len == 0 ) return false;
         if( len == 1 ) return ::isupper( str[0] );
 
-        for ( i = 0; i < len; ++i )
-        {
-           if ( !::isupper( str[i] ) ) return false;
+        // python's isupper is a lot more leniant than c++
+        // this will match the python behavior so that something like
+        // isupper("HELLO123") is true
+
+        bool has_cased = false;
+        for (std::string::size_type i = 0; i < str.size(); ++i) {
+            if (::isupper(str[i]))
+                has_cased = true;
+            else if (::islower(str[i]))
+                return false;
         }
-        return true;
+        return has_cased;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -926,6 +940,16 @@ const std::string colon = ":";
     {
         int nummatches = 0;
         int cursor = start;
+
+        // special handling for an empty substring
+        // this will match python's behavior of
+        // "bob".count("") == 4
+        // "".count("") == 1
+        if ( substr.empty() )
+        {
+            PYSTRING_ADJUST_INDICES(start, end, (int)str.size());
+            return end - start + 1;
+        }
 
         while ( 1 )
         {
