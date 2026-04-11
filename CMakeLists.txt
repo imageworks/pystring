@@ -19,6 +19,9 @@ endif()
 message (STATUS "Installation path will be ${CMAKE_INSTALL_PREFIX}")
 include(GNUInstallDirs)
 
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+
 if(PYSTRING_HEADER_ONLY)
     message(STATUS "Building pystring as header-only library")
     add_library(pystring INTERFACE)
@@ -42,6 +45,7 @@ else()
         pystring.h
     )
 
+    target_compile_options(pystring PRIVATE -fvisibility=hidden)
     set_target_properties(pystring PROPERTIES
         VERSION ${PROJECT_VERSION}
         SOVERSION ${PROJECT_VERSION_MAJOR}
