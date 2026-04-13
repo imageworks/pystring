@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        build: [1, 2, 3, 4, 5, 6]
+        build: [1, 2, 3, 4]
         include:
           # -------------------------------------------------------------------
           # CLANG, Release
@@ -75,36 +75,6 @@ jobs:
             compiler-desc: gcc
             os: ubuntu-latest
 
-
-          # -------------------------------------------------------------------
-          # CLANG, Release header only
-          # -------------------------------------------------------------------
-          - build: 5
-            build-type: Release
-            build-shared: 'ON'
-            header-only: 'ON'
-            cxx-standard: 17
-            cxx-compiler: clang++
-            cxx-flags: ''
-            cc-compiler: clang
-            compiler-desc: clang
-            os: ubuntu-latest
-
-          # -------------------------------------------------------------------
-          # gcc, Release header only
-          # -------------------------------------------------------------------
-          - build: 6
-            build-type: Release
-            build-shared: 'ON'
-            header-only: 'ON'
-            cxx-standard: 17
-            cxx-compiler: g++
-            cxx-flags: ''
-            cc-compiler: gcc
-            compiler-desc: gcc
-            os: ubuntu-latest
-
-
     env:
       CXX: ${{ matrix.cxx-compiler }}
       CC: ${{ matrix.cc-compiler }}
@@ -124,7 +94,6 @@ jobs:
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
-                -DPYSTRING_HEADER_ONLY=${{ matrix.header-only }}
         working-directory: _build
       - name: Build
         run: |
@@ -165,16 +134,6 @@ jobs:
             cxx-flags: ''
             os: macos-latest
 
-
-          # Release header only
-          - build: 3
-            build-type: Release
-            build-shared: 'ON'
-            header-only: 'ON'
-            cxx-standard: 17
-            cxx-flags: ''
-            os: macos-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -192,7 +151,6 @@ jobs:
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
-                -DPYSTRING_HEADER_ONLY=${{ matrix.header-only }}
         working-directory: _build
       - name: Build
         run: |
@@ -232,15 +190,6 @@ jobs:
             cxx-flags: ''
             os: windows-latest
 
-          # Release header only
-          - build: 3
-            build-type: Release
-            build-shared: 'ON'
-            header-only: 'ON'
-            cxx-standard: 17
-            cxx-flags: ''
-            os: windows-latest
-
             
     steps:
       - name: Checkout
@@ -261,7 +210,6 @@ jobs:
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
-                -DPYSTRING_HEADER_ONLY=${{ matrix.header-only }}
         shell: bash
         working-directory: _build
       - name: Build
