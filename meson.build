@@ -1,7 +1,7 @@
 project(
     'pystring',
     'cpp',
-    version: '1.1.4',
+    version: '1.1.5',
     license: 'BSD-3-Clause',
     license_files: 'LICENSE',
     meson_version: '>=1.3',
