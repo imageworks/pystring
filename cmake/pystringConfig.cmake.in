@@ -1,0 +1,7 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/pystringTargets.cmake")
+
+check_required_components(pystring pystring_header_only)
+EOF
+
