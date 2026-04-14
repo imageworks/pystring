@@ -1,7 +1,8 @@
 @PACKAGE_INIT@
 
-include("${CMAKE_CURRENT_LIST_DIR}/pystringTargets.cmake")
+# Prevent double-definition errors
+if(NOT TARGET pystring::pystring AND NOT TARGET pystring::pystring_header_only)
+    include("${CMAKE_CURRENT_LIST_DIR}/pystringTargets.cmake")
+endif()
 
-check_required_components(pystring pystring_header_only)
-EOF
-
+check_required_components(pystring)
