@@ -1281,5 +1281,20 @@ PYSTRING_ADD_TEST(python3_compat, splitlines)
         std::vector<std::string> _e43 = {"\n", "hello"};
         PYSTRING_CHECK_ASSERT((pystring_splitlines("\nhello", true)) == _e43);
     }
+    {
+        std::vector<std::string> _e44 = {"hello", "", "world"};
+        PYSTRING_CHECK_ASSERT((pystring_splitlines("hello\n\nworld", false)) == _e44);
+    }
+    {
+        std::vector<std::string> _e45 = {"hello\n", "\n", "world"};
+        PYSTRING_CHECK_ASSERT((pystring_splitlines("hello\n\nworld", true)) == _e45);
+    }
+    {
+        std::vector<std::string> _e46 = {"hello", ""};
+        PYSTRING_CHECK_ASSERT((pystring_splitlines("hello\n\n", false)) == _e46);
+    }
+    {
+        std::vector<std::string> _e47 = {"hello\n", "\n"};
+        PYSTRING_CHECK_ASSERT((pystring_splitlines("hello\n\n", true)) == _e47);
+    }
 }
-
