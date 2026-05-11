@@ -969,6 +969,25 @@ PYSTRING_ADD_TEST(python3_compat, replace_python3)
     PYSTRING_CHECK_EQUAL(pystring::replace("hello", "hello", "", -1), "");
 }
 
+PYSTRING_ADD_TEST(python3_compat, replace_overlap)
+{
+    PYSTRING_CHECK_EQUAL(pystring::replace("aaaaa", "aa", "b", -1), "bba");
+    PYSTRING_CHECK_EQUAL(pystring::replace("aaaa", "aa", "b", -1), "bb");
+    PYSTRING_CHECK_EQUAL(pystring::replace("aaa", "aa", "b", -1), "ba");
+    PYSTRING_CHECK_EQUAL(pystring::replace("abababa", "aba", "X", -1), "XbX");
+    PYSTRING_CHECK_EQUAL(pystring::replace("aaaaaa", "aaa", "x", -1), "xx");
+    PYSTRING_CHECK_EQUAL(pystring::replace("abcabcabc", "abc", "x", 2), "xxabc");
+    PYSTRING_CHECK_EQUAL(pystring::replace("abcabcabc", "abc", "x", 1), "xabcabc");
+    PYSTRING_CHECK_EQUAL(pystring::replace("aaaa", "a", "", -1), "");
+    PYSTRING_CHECK_EQUAL(pystring::replace("aaaa", "aa", "", -1), "");
+    PYSTRING_CHECK_EQUAL(pystring::replace("abc", "d", "x", -1), "abc");
+    PYSTRING_CHECK_EQUAL(pystring::replace("", "a", "x", -1), "");
+    PYSTRING_CHECK_EQUAL(pystring::replace("", "", "x", -1), "x");
+    PYSTRING_CHECK_EQUAL(pystring::replace("a", "", "-", -1), "-a-");
+    PYSTRING_CHECK_EQUAL(pystring::replace("mississippi", "issi", "X", -1), "mXssippi");
+    PYSTRING_CHECK_EQUAL(pystring::replace("11111", "11", "x", -1), "xx1");
+}
+
 PYSTRING_ADD_TEST(python3_compat, rfind_python3)
 {
     PYSTRING_CHECK_EQUAL(pystring::rfind("hello world", "world", 0), 6);
