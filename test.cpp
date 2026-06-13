@@ -969,6 +969,25 @@ PYSTRING_ADD_TEST(python3_compat, replace_python3)
     PYSTRING_CHECK_EQUAL(pystring::replace("hello", "hello", "", -1), "");
 }
 
+PYSTRING_ADD_TEST(python3_compat, replace_overlap)
+{
+    PYSTRING_CHECK_EQUAL(pystring::replace("aaaaa", "aa", "b", -1), "bba");
+    PYSTRING_CHECK_EQUAL(pystring::replace("aaaa", "aa", "b", -1), "bb");
+    PYSTRING_CHECK_EQUAL(pystring::replace("aaa", "aa", "b", -1), "ba");
+    PYSTRING_CHECK_EQUAL(pystring::replace("abababa", "aba", "X", -1), "XbX");
+    PYSTRING_CHECK_EQUAL(pystring::replace("aaaaaa", "aaa", "x", -1), "xx");
+    PYSTRING_CHECK_EQUAL(pystring::replace("abcabcabc", "abc", "x", 2), "xxabc");
+    PYSTRING_CHECK_EQUAL(pystring::replace("abcabcabc", "abc", "x", 1), "xabcabc");
+    PYSTRING_CHECK_EQUAL(pystring::replace("aaaa", "a", "", -1), "");
+    PYSTRING_CHECK_EQUAL(pystring::replace("aaaa", "aa", "", -1), "");
+    PYSTRING_CHECK_EQUAL(pystring::replace("abc", "d", "x", -1), "abc");
+    PYSTRING_CHECK_EQUAL(pystring::replace("", "a", "x", -1), "");
+    PYSTRING_CHECK_EQUAL(pystring::replace("", "", "x", -1), "x");
+    PYSTRING_CHECK_EQUAL(pystring::replace("a", "", "-", -1), "-a-");
+    PYSTRING_CHECK_EQUAL(pystring::replace("mississippi", "issi", "X", -1), "mXssippi");
+    PYSTRING_CHECK_EQUAL(pystring::replace("11111", "11", "x", -1), "xx1");
+}
+
 PYSTRING_ADD_TEST(python3_compat, rfind_python3)
 {
     PYSTRING_CHECK_EQUAL(pystring::rfind("hello world", "world", 0), 6);
@@ -1262,5 +1281,20 @@ PYSTRING_ADD_TEST(python3_compat, splitlines)
         std::vector<std::string> _e43 = {"\n", "hello"};
         PYSTRING_CHECK_ASSERT((pystring_splitlines("\nhello", true)) == _e43);
     }
+    {
+        std::vector<std::string> _e44 = {"hello", "", "world"};
+        PYSTRING_CHECK_ASSERT((pystring_splitlines("hello\n\nworld", false)) == _e44);
+    }
+    {
+        std::vector<std::string> _e45 = {"hello\n", "\n", "world"};
+        PYSTRING_CHECK_ASSERT((pystring_splitlines("hello\n\nworld", true)) == _e45);
+    }
+    {
+        std::vector<std::string> _e46 = {"hello", ""};
+        PYSTRING_CHECK_ASSERT((pystring_splitlines("hello\n\n", false)) == _e46);
+    }
+    {
+        std::vector<std::string> _e47 = {"hello\n", "\n"};
+        PYSTRING_CHECK_ASSERT((pystring_splitlines("hello\n\n", true)) == _e47);
+    }
 }
-
