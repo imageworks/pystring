@@ -1,65 +1,51 @@
 project(
     'pystring',
     'cpp',
-    version: '1.1.4',
+    version: '1.2.0',
     license: 'BSD-3-Clause',
     license_files: 'LICENSE',
     meson_version: '>=1.3',
     default_options: ['cpp_std=c++17,c++11', 'warning_level=3'],
 )
 
-# Option to build as header-only library
-header_only = get_option('header_only')
-
 inc = include_directories('.')
 hdrs = files('pystring.h')
 
-if header_only
-    # Header-only mode: create a header-only dependency
-    message('Building pystring as header-only library')
+# --- Compiled library target ---
+pystring_lib = library(
+    'pystring',
+    files('pystring.cpp'),
+    implicit_include_directories: false,
+    include_directories: inc,
+    version: meson.project_version(),
+    install: true,
+)
 
-    pystring_dep = declare_dependency(
-        include_directories: inc,
-        compile_args: ['-DPYSTRING_HEADER_ONLY'],
-    )
+pystring_dep = declare_dependency(
+    link_with: pystring_lib,
+    include_directories: inc,
+)
 
-    # Install headers for header-only mode
-    install_headers(hdrs, files('pystring_impl.h'), subdir: 'pystring')
+install_headers(hdrs, subdir: 'pystring')
 
-else
-    # Compiled mode: build as normal library
-    message('Building pystring as compiled library')
+pkgconfig = import('pkgconfig')
+pkgconfig.generate(
+    pystring_lib,
+    description: 'C++ functions matching the interface and behavior of python string methods with std::string',
+)
 
-    srcs = files('pystring.cpp')
+# --- Header-only target ---
+pystring_header_only_dep = declare_dependency(
+    include_directories: inc,
+    compile_args: ['-DPYSTRING_HEADER_ONLY'],
+)
 
-    pystring_lib = library(
-        'pystring',
-        srcs,
-        implicit_include_directories: false,
-        include_directories: inc,
-        version: meson.project_version(),
-        install: true,
-    )
+install_headers(hdrs, files('pystring_impl.h'), subdir: 'pystring')
 
-    pystring_dep = declare_dependency(
-        link_with: pystring_lib,
-        include_directories: inc,
-    )
-
-    # Install headers for compiled mode
-    install_headers(hdrs, subdir: 'pystring')
-
-    # Generate pkg-config file
-    pkgconfig = import('pkgconfig')
-    pkgconfig.generate(
-        pystring_lib,
-        description: 'C++ functions matching the interface and behavior of python string methods with std::string',
-    )
-endif
-
+# --- Override default dependency ---
 meson.override_dependency('pystring', pystring_dep)
 
-# Build and run tests
+# --- Tests ---
 test(
     'PyStringTest',
     executable(
@@ -68,4 +54,22 @@ test(
         dependencies: pystring_dep,
         build_by_default: false,
     ),
+)
+
+test(
+    'PyStringTestHeaderOnly',
+    executable(
+        'pystring_test_header_only',
+        'test.cpp',
+        dependencies: pystring_header_only_dep,
+        build_by_default: false,
+    ),
+)
+
+# Compile-time check that PYSTRING_HEADER_ONLY propagates correctly
+executable(
+    'pystring_test_header_only_define',
+    'test_header_only_define.cpp',
+    dependencies: pystring_header_only_dep,
+    build_by_default: true,
 )

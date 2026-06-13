@@ -1,1 +1,0 @@
-option('header_only', type: 'boolean', value: false, description: 'Build as header-only library')

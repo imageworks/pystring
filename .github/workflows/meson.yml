@@ -7,16 +7,13 @@ on:
 jobs:
   meson-build-and-tests:
     runs-on: ${{ matrix.platform }}
-    name: ${{ matrix.platform }}, ${{ matrix.mode.name }} ${{ matrix.flavor }} ${{ matrix.library_mode }}
+    name: ${{ matrix.platform }}, ${{ matrix.mode.name }} ${{ matrix.flavor }}
     strategy:
       fail-fast: false
       matrix:
         flavor:
           - debug
           - release
-        library_mode:
-          - compiled
-          - header-only
         mode:
           - name: default
             extra_envs: {}
@@ -64,29 +61,6 @@ jobs:
           - macos-latest
 
         exclude:
-          # Only test header-only with a subset of configurations to reduce CI time
-          # Test header-only only with default compiler in release mode
-          - library_mode: header-only
-            flavor: debug
-          - library_mode: header-only
-            mode:
-              name: gcc
-          - library_mode: header-only
-            mode:
-              name: clang
-          - library_mode: header-only
-            mode:
-              name: sanitize
-          - library_mode: header-only
-            mode:
-              name: sanitize+asanonly
-          - library_mode: header-only
-            mode:
-              name: clang+sanitize
-          - library_mode: header-only
-            mode:
-              name: clang-cl+sanitize
-
           # clang-cl only makes sense on windows.
           - platform: ubuntu-22.04
             mode:
@@ -151,21 +125,21 @@ jobs:
         if: ${{ matrix.platform == 'windows-2022' }}
         env: ${{ matrix.mode.extra_envs }}
         run: |
-          meson setup build-${{ matrix.flavor }}-${{ matrix.library_mode }} --buildtype=${{ matrix.flavor }} -Ddefault_library=static -Dheader_only=${{ matrix.library_mode == 'header-only' && 'true' || 'false' }} ${{ matrix.mode.args }} --vsenv
+          meson setup build-${{ matrix.flavor }} --buildtype=${{ matrix.flavor }} -Ddefault_library=static ${{ matrix.mode.args }} --vsenv
       - name: Configuring
         if: ${{ matrix.platform != 'windows-2022' }}
         env: ${{ matrix.mode.extra_envs }}
         run: |
-          meson setup build-${{ matrix.flavor }}-${{ matrix.library_mode }} --buildtype=${{ matrix.flavor }} -Dheader_only=${{ matrix.library_mode == 'header-only' && 'true' || 'false' }} ${{ matrix.mode.args }}
+          meson setup build-${{ matrix.flavor }} --buildtype=${{ matrix.flavor }} ${{ matrix.mode.args }}
       - name: Building
         run: |
-          meson compile -C build-${{ matrix.flavor }}-${{ matrix.library_mode }}
+          meson compile -C build-${{ matrix.flavor }}
       - name: Running tests
         env: ${{ matrix.mode.extra_envs }}
         run: |
-          meson test -C build-${{ matrix.flavor }}-${{ matrix.library_mode }} --timeout-multiplier 0
+          meson test -C build-${{ matrix.flavor }} --timeout-multiplier 0
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: ${{ matrix.platform }}-${{ matrix.mode.name }}-${{ matrix.flavor }}-${{ matrix.library_mode }}-logs
-          path: build-${{ matrix.flavor }}-${{ matrix.library_mode }}/meson-logs
+          name: ${{ matrix.platform }}-${{ matrix.mode.name }}-${{ matrix.flavor }}-logs
+          path: build-${{ matrix.flavor }}/meson-logs
