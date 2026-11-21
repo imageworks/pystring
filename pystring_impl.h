@@ -869,14 +869,18 @@ const std::string colon = ":";
     int rfind( const std::string & str, const std::string & sub, int start, int end )
     {
         PYSTRING_ADJUST_INDICES(start, end, (int) str.size());
-        
-        std::string::size_type result = str.rfind( sub, end );
-        
-        if( result == std::string::npos || 
-            result < (std::string::size_type)start  || 
-           (result + sub.size() > (std::string::size_type)end))
+
+        // The match must fit in [start, end), so search back from the
+        // last position where it could still end at or before end.
+        if( end - start < (int) sub.size() )
             return -1;
-        
+
+        std::string::size_type result = str.rfind( sub, (std::string::size_type)(end - (int) sub.size()) );
+
+        if( result == std::string::npos ||
+            result < (std::string::size_type)start )
+            return -1;
+
         return (int)result;
     }
 
@@ -948,6 +952,7 @@ const std::string colon = ":";
         if ( substr.empty() )
         {
             PYSTRING_ADJUST_INDICES(start, end, (int)str.size());
+            if ( start > end ) return 0;
             return end - start + 1;
         }
 
