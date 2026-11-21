@@ -126,6 +126,12 @@ PYSTRING_ADD_TEST(pystring, rfind)
     PYSTRING_CHECK_EQUAL(pystring::rfind("abcabcabc", "bc", 4, 20), 7);
     
     PYSTRING_CHECK_EQUAL(pystring::rfind("abcabcabc", "abc", 6, 8), -1);
+
+    // the last match that fits before end, not the last match overall
+    PYSTRING_CHECK_EQUAL(pystring::rfind("abcabcabc", "bc", 0, 8), 4);
+    PYSTRING_CHECK_EQUAL(pystring::rfind("abcabcabc", "abc", 0, 8), 3);
+    PYSTRING_CHECK_EQUAL(pystring::rfind("abcabc", "c", 0, 5), 2);
+    PYSTRING_CHECK_EQUAL(pystring::rfind("abc", "", 2, 1), -1);
 }
 
 PYSTRING_ADD_TEST(pystring, removeprefix)
@@ -735,6 +741,10 @@ PYSTRING_ADD_TEST(python3_compat, count_python3)
     PYSTRING_CHECK_EQUAL(pystring::count("hello world", "", 0), 12);
     PYSTRING_CHECK_EQUAL(pystring::count("aaa", "a", 0), 3);
     PYSTRING_CHECK_EQUAL(pystring::count("aaa", "aa", 0), 1);
+    PYSTRING_CHECK_EQUAL(pystring::count("abc", "", 1, 2), 2);
+    PYSTRING_CHECK_EQUAL(pystring::count("abc", "", 3, 0), 0);
+    PYSTRING_CHECK_EQUAL(pystring::count("abc", "", 5), 0);
+    PYSTRING_CHECK_EQUAL(pystring::count("abc", "", -1, -2), 0);
     PYSTRING_CHECK_EQUAL(pystring::count("hello", "l", 2, 5), 2);
 }
 
